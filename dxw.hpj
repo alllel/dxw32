@@ -1,0 +1,10 @@
+[OPTIONS]
+CONTENTS=contents
+TITLE=DXW help
+COMPRESS=HIGH
+ERRORLOG=dxw.log
+[CONFIG]
+BrowseButtons()
+[FILES]
+dxw.rtf
+
