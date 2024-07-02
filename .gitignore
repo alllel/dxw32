@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+# cmake builds under CLion
+cmake-build-*
+
+# CLion
+.idea
