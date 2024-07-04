@@ -223,7 +223,7 @@ if(!val){
 	}else{
 		rd=0;
 	}
-	val=(short int _huge *)GlobalLock(hVal);
+    val = (short int *) GlobalLock(hVal);
 	if(rd){
 		if(!ReadD())MessageBox(hFrame,"Error Reading Channell",NULL,MB_OK);
 	}
@@ -246,7 +246,7 @@ if(!imp){
 	}else{
 		rd=FALSE;
 	}
-	imp=(float _huge *)GlobalLock(hImp);
+    imp = (float *) GlobalLock(hImp);
 	if(rd)CalcI();
 }
 return;

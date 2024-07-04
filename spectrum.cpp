@@ -61,7 +61,7 @@ cs.szTitle=buf;
 cs.hOwner=hInst;
 cs.x=cs.y=cs.cx=cs.cy=CW_USEDEFAULT;
 cs.style=0;
-cs.lParam=NULL;
+    cs.lParam = 0l;
 Create(cs);
 }
 

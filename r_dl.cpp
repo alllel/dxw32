@@ -19,7 +19,8 @@ static char CalName[20];
 static char TimeExp[26];
 static char Comment[66];
 static char HeadNam[20];
-static void reverse(int count,short int _huge*dp);
+
+static void reverse(int count, short int *dp);
 
 DLGPROC(DirProc);
 
@@ -319,7 +320,7 @@ for(i=0;i<30;i++){
 			break;
 	}
 	G->hVal=GlobalAlloc(GMEM_MOVEABLE|GMEM_DISCARDABLE,(final-start)*sizeof(int));
-	G->val=(short int FAR*)GlobalLock(G->hVal);
+    G->val = (short int *) GlobalLock(G->hVal);
 	LZRead(hFile,(LPSTR)G->val,(final-start)*sizeof(short));
 	reverse(final-start,G->val);
 	LZClose(hFile);

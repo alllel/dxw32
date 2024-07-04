@@ -64,7 +64,7 @@ switch(msg){
 							G->_Lower=(G->_Lower-os)*nr/or_+ns;
 							G->_Upper=(G->_Upper-os)*nr/or_+ns;
 							if(G->_Lower>G->_Upper){
-								register double tmp=G->_Lower;
+                                double tmp = G->_Lower;
 								G->_Lower=G->_Upper;
 								G->_Upper=tmp;
 							}

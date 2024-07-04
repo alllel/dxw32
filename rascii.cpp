@@ -77,8 +77,8 @@ long size=1024;
 long i;
 HGLOBAL hT=GlobalAlloc(GMEM_MOVEABLE,size*sizeof(float));
 HGLOBAL hV=GlobalAlloc(GMEM_MOVEABLE,size*sizeof(float));
-float _huge*T=(float _huge*)GlobalLock(hT);
-float _huge*V=(float _huge*)GlobalLock(hV);
+    float *T = (float *) GlobalLock(hT);
+    float *V = (float *) GlobalLock(hV);
 c=fgetc(f);
 if(c==EOF){
 	MessageBox(hFrame,"Empty file",fname,MB_OK|MB_ICONEXCLAMATION);
@@ -101,10 +101,10 @@ while(fgets(buf,128,f)){
 		size+=1024;
 		GlobalUnlock(hT);
 		hT=GlobalReAlloc(hT,size*sizeof(float),0);
-		T=(float _huge*)GlobalLock(hT);
+        T = (float *) GlobalLock(hT);
 		GlobalUnlock(hV);
 		hV=GlobalReAlloc(hV,size*sizeof(float),0);
-		V=(float _huge*)GlobalLock(hV);
+        V = (float *) GlobalLock(hV);
 	}
 	T[np]=t;
 	V[np]=v;
@@ -116,7 +116,7 @@ EndWait();
 float rate=(T[np-1]-T[0])/(np-1);
 float Vmin,Vmax,T0;
 HGLOBAL hDat;
-short int _huge*Dat=NULL;
+    short int *Dat = NULL;
 float dV;
 T0=T[0];
 Vmin=Vmax=V[0];
@@ -131,7 +131,7 @@ for(i=1;i<np;++i){
 if(i==np){
 	dV=(Vmax-Vmin)/0x7FFE;
 	hDat=GlobalAlloc(GMEM_MOVEABLE,np*sizeof(int));
-	Dat=(short int _huge*)GlobalLock(hDat);
+    Dat = (short int *) GlobalLock(hDat);
 	for(i=0;i<np;++i)Dat[i]=(V[i]-Vmin)/dV;
 }
 exit:

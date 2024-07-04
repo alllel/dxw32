@@ -86,15 +86,15 @@ public:
 /*	struct Dat {
 		enum _Dmax {MaxLen=0x4000};
 		HGLOBAL hVal,hImp;
-		int FAR *val;
-		float FAR *Imp;
+		int *val;
+		float *Imp;
 		Dat(){hVal=NULL;hImp=NULL;val=NULL;Imp=NULL;}
 	} *data;
 */
-	HGLOBAL hVal,hImp;
-	short int _huge*val;
-	float _huge*imp;
-	double Imax,Imin;
+    HGLOBAL hVal, hImp;
+    short int *val;
+    float *imp;
+    double Imax, Imin;
 // window specific
 	Pline *PolyP,*PolyI;
 	long Curr;
@@ -174,7 +174,8 @@ virtual char*PicName();
 	long T2P(double);
 
 	double     Val(long i);
-	float FAR& Imp(long i);
+
+    float &Imp(long i);
 
 	double Pp(int i){return Val(pts[i]);}
 	double Tp(int i){return P2T(pts[i]);}

@@ -13,7 +13,7 @@ inline double Gauge::Val(long i)
 return I2D(*(val+i));
 }
 
-inline float FAR& Gauge::Imp(long i)
+inline float &Gauge::Imp(long i)
 {
 return *(imp+i);
 }

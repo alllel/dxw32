@@ -20,7 +20,7 @@ void CutWnd::SetCursor(POINTS&pt)
 {
 int x0,x1,xm;
 int y0,y1,ym;
-const char far*Curs;
+    const char *Curs;
 if(!GetCutRC(rcCut)){
 	hResize=0;
 	vResize=0;
