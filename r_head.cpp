@@ -3,61 +3,61 @@
 #include <windows.h>
 #include "dxw.h"
 #include "gauge.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <lzexpand.h>
 #include <commdlg.h>
 #include <sstream>
 
-int OpenExp() {
-  Experiment *E;
-  buf[0] = 0;
+int
+OpenExp() {
+  Experiment* E;
+  buf[0]        = 0;
   ofn.hwndOwner = hFrame;
-  ofn.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
-  if (!GetOpenFileName(&ofn))return 0;
+  ofn.Flags     = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
+  if (!GetOpenFileName(&ofn)) return 0;
   E = SetupExp();
   E->Inc();
   {
     for (GaugeIterator G; G; ++G)
       if (*(G->Exp) == *E) {
-        MessageBox(hFrame, "Experiment is already open!", NULL, MB_OK | MB_ICONEXCLAMATION);
+        MessageBox(hFrame, "Experiment is already open!", nullptr, MB_OK | MB_ICONEXCLAMATION);
         E->Dec();
         return 0;
       }
   }
-  FILE *fp = fopen(E->IXC(), "rt");
+  FILE* fp = fopen(E->IXC(), "rt");
   if (!fp) {
     MessageBox(hFrame, "Can't open file", buf, MB_OK | MB_ICONSTOP);
     E->Dec();
     return 0;
   }
 
-  Gauge *NG;
+  Gauge* NG;
   MDICREATESTRUCT cs;
   cs.szClass = "DXWchannel";
-  cs.hOwner = hInst;
-  cs.x = CW_USEDEFAULT;
-  cs.y = CW_USEDEFAULT;
-  cs.cx = CW_USEDEFAULT;
-  cs.cy = CW_USEDEFAULT;
-  cs.style = WS_MINIMIZE;
-  cs.lParam = 0;
+  cs.hOwner  = hInst;
+  cs.x       = CW_USEDEFAULT;
+  cs.y       = CW_USEDEFAULT;
+  cs.cx      = CW_USEDEFAULT;
+  cs.cy      = CW_USEDEFAULT;
+  cs.style   = WS_MINIMIZE;
+  cs.lParam  = 0;
   int c, i;
   long datapos = 0;
   do {
     unsigned short h, min, s, d, m, y;
-    if (!fgets(buf, 200, fp))break;
+    if (!fgets(buf, 200, fp)) break;
     NG = new Gauge(E);
-    c = sscanf(buf, "%*1d:%[0-9A-Z#]\\%16c\\%lg\\%lg\\%3c\\Time %hu.%hu.%hu \\Date %hu:%hu:%hu",
-               NG->ChNum,
-               NG->ID,
-               &NG->dV,
-               &NG->V0,
-               NG->unit,
-               &h, &min, &s,
-               &d, &m, &y
-    );
+    c  = sscanf(buf, "%*1d:%[0-9A-Z#]\\%16c\\%lg\\%lg\\%3c\\Time %hu.%hu.%hu \\Date %hu:%hu:%hu",
+                NG->ChNum,
+                NG->ID,
+                &NG->dV,
+                &NG->V0,
+                NG->unit,
+                &h, &min, &s,
+                &d, &m, &y);
     if (c != 11) {
       std::stringstream msg;
       msg << "Error reading channel from line: \n|" << buf << "|\n"
@@ -66,18 +66,18 @@ int OpenExp() {
       delete NG;
       break;
     }
-    NG->time.hour = h;
-    NG->time.min = min;
-    NG->time.sec = s;
-    NG->date.day = d;
+    NG->time.hour  = h;
+    NG->time.min   = min;
+    NG->time.sec   = s;
+    NG->date.day   = d;
     NG->date.month = m;
-    NG->date.year = y;
-    NG->FilePos = datapos;
-    NG->nRates = 0;
-    long pos = ftell(fp);
+    NG->date.year  = y;
+    NG->FilePos    = datapos;
+    NG->nRates     = 0;
+    long pos       = ftell(fp);
     do {
       ++(NG->nRates);
-      if (!fgets(buf, 200, fp))break;
+      if (!fgets(buf, 200, fp)) break;
     } while (buf[0] == '\\');
     fseek(fp, pos, 0);
     --(NG->nRates);
@@ -89,7 +89,7 @@ int OpenExp() {
     NG->count = 0;
     for (i = 0; i < NG->nRates; ++i) {
       fgets(buf, 200, fp);
-      if (sscanf(buf, "\\%lu\\%lE\\%lE", &NG->Rates[i].Np, &NG->Rates[i].rate, &NG->Rates[i].Tstart) != 3)break;
+      if (sscanf(buf, "\\%lu\\%lE\\%lE", &NG->Rates[i].Np, &NG->Rates[i].rate, &NG->Rates[i].Tstart) != 3) break;
       NG->count += NG->Rates[i].Np;
     }
     datapos += NG->count * sizeof(short int);
@@ -104,29 +104,26 @@ int OpenExp() {
   } while (1);
   E->Dec();
   fclose(fp);
-  if (!nGauges)MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
+  if (!nGauges) MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
   SetTitle();
   return 0;
 }
 
-void SetTitle(void) {
+void
+SetTitle(void) {
   switch (Experiment::nExp) {
     case 1: {
       sprintf(buf, "DXW:%s (%d channels)", ExpName, nGauges);
       SetWindowText(hFrame, buf);
-    }
-      break;
+    } break;
     case 0: {
       Changed = 0;
       SetWindowText(hFrame, "DX for Windows");
-    }
-      break;
+    } break;
     default: {
       sprintf(buf, "DXW:%d exp (%d channels)", Experiment::nExp, nGauges);
       SetWindowText(hFrame, buf);
-    }
-      break;
+    } break;
   }
   TitleChanged = 0;
 }
-
