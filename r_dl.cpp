@@ -321,7 +321,6 @@ OpenDL() {
     cs.lParam  = 0;
     G->Create(cs);
     if (G->hWnd) G->Write(dat, ixc);
-    G->UnlockGauge();
   }
   LocalFree(ct);
   fclose(fp);

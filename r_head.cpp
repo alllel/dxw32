@@ -20,7 +20,7 @@ OpenExp() {
   E = SetupExp();
   E->Inc();
   {
-    for (GaugeIterator G; G; ++G)
+    for (auto G : GaugeIterator()) 
       if (*(G->Exp) == *E) {
         MessageBox(hFrame, "Experiment is already open!", nullptr, MB_OK | MB_ICONEXCLAMATION);
         E->Dec();
@@ -96,9 +96,7 @@ OpenExp() {
     NG->Setup();
     cs.szTitle = NG->WinTitle();
     NG->Create(cs);
-    if (NG->hWnd) {
-      NG->UnlockGauge();
-    } else {
+    if (!NG->hWnd) {
       delete NG;
     }
   } while (1);

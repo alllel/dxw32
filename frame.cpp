@@ -22,28 +22,25 @@ WINPROC(MainWin) {
         CheckMenuItem((HMENU) wParam, CM_DIGIT, MF_BYCOMMAND | (hDig ? MF_CHECKED : MF_UNCHECKED));
         CheckMenuItem((HMENU) wParam, CM_INFO, MF_BYCOMMAND | (hInfo ? MF_CHECKED : MF_UNCHECKED));
       }
-      goto def;
-      //	case WM_SETFOCUS:
-      //		SetFocus(hMDI);
-      //		return 0;
+      break;
     case WM_CLOSE:
       if (CloseAll()) DestroyWindow(hFrame);
-      return NULL;
-    case WM_DESTROY:
-      PostQuitMessage(0);
-      goto def;
+      return 0;
     case WM_COMMAND:
       cmd = LOWORD(wParam);
       if ((cmd >= CM_FIRST) && (cmd < CM_LAST)) {
         hChld = (HWND) SendMessage(hMDI, WM_MDIGETACTIVE, 0, 0);
         if (!hChld || !SendMessage(hChld, WM_COMMAND, cmd, lParam))
           Command(cmd);
-        return NULL;
+        return 0;
       }
+    case WM_DESTROY:
+      PostQuitMessage(0);
+      break;
     default:
-    def:
-      return DefFrameProc(hWnd, hMDI, msg, wParam, lParam);
+      break;
   }
+  return DefFrameProc(hWnd, hMDI, msg, wParam, lParam);
 }
 
 int
@@ -112,7 +109,7 @@ Command(WPARAM cmd) {
   switch (cmd) {
     case CM_EXPINFO:
       if (Experiment::nExp == 1) {
-        GaugeIterator G;
+        auto G = *GaugeIterator().begin();
         sprintf(buf, "notepad.exe %s", G->Exp->File("DSC"));
         WinExec(buf, SW_RESTORE);
       }
@@ -177,7 +174,7 @@ Command(WPARAM cmd) {
       Digitize();
       break;
     case CM_HELP:
-      WinHelp(hFrame, "dxw.hlp", HELP_CONTENTS, NULL);
+      WinHelp(hFrame, "dxw.hlp", HELP_CONTENTS, 0);
       break;
     case CM_TABLE:
       if (nGauges) WriteTable();

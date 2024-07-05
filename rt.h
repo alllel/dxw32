@@ -1,6 +1,7 @@
-#ifndef _RT_H_
-#define _RT_H_
+#ifndef RT_H
+#define RT_H
 
+#include <algorithm>
 typedef enum { Left  = 1,
                Right = -1,
                None  = 0 } state;
@@ -12,8 +13,8 @@ class RT : public Window {
   BOOL clr : 1;
   double P_height, R_angle;
   double T0, T1, R0, R1;
-  int n;
-  HLOCAL Chns[GMAX];
+  std::vector<Gauge*> Chns;
+  bool RemoveChn(Gauge*);
   void InitDlg(HWND);
   int ReadDlg(HWND);
   virtual void Draw(HDC, RECT&, DCtype, RECT*);
@@ -25,6 +26,16 @@ class RT : public Window {
   void Save(char* fname);
   RT();
 };
+
+inline auto
+RTIterator() { return WindowIterator<RT>(); }
+
+inline auto
+RTbyGaugeIterator(Gauge* g) {
+  return RTIterator() | std::views::filter([g](RT* rt) {
+           return std::ranges::find(rt->Chns, g) != rt->Chns.end();
+         });
+}
 
 extern RT* Rt;
 

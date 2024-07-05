@@ -3,10 +3,6 @@ GaugeByWnd(HWND hWnd) {
   return dynamic_cast<Gauge*>(Window::GetWindow(hWnd));
 }
 
-inline Gauge*
-Gauge::LockGauge(HLOCAL h) {
-  return dynamic_cast<Gauge*>(LockWindow(h));
-}
 
 inline double
 Gauge::Val(long i) {

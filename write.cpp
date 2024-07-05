@@ -8,7 +8,7 @@ void
 Write(BOOL SaveAs) {
   Experiment* E = nullptr;
   //if(!Experiment::nExp)return;
-  GaugeIterator G;
+  Gauge* G = *GaugeIterator().begin();
   if (!SaveAs && Experiment::nExp == 1) {
     if (G) E = G->Exp;
   } else {
@@ -27,7 +27,7 @@ Write(BOOL SaveAs) {
     return;
   }
   BeginWait();
-  for (G.reset(); G; ++G) {
+  for (auto G:GaugeIterator()) {
     if (G->Write(dat, ixc)) break;
   }
   EndWait();
@@ -37,7 +37,7 @@ Write(BOOL SaveAs) {
   if (fclose(ixc)) succ = 0;
   if (succ) {
     long Pos = 0;
-    for (G.reset(); G; ++G) {
+    for (auto G:GaugeIterator()) {
       G->AfterWrite(E, Pos);
     }
     sprintf(bak, "%s%s.bak", E->Dir, E->Name);

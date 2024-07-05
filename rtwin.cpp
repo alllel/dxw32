@@ -43,37 +43,32 @@ RT::WinProc(Msg& m) {
 void
 RT::FindChannell(WORD y) {
   RECT rc;
-  if (!n) return;
+  if (Chns.empty()) return;
   GetClientRect(hWnd, &rc);
   int height = rc.bottom - rc.top;
-  int delt, mdelt = height;
+  int mdelt = height;
   int tf = (int) (height * 0.01);
   int bf = (int) (height * 0.1);
   height -= tf + bf;
   int Ph = (int) (height * (P_height / 100.0));
   int Rh = height - Ph;
-  Gauge* G;
-  int i, rez = -1;
   double w;
-  for (i = 0; i < n; ++i) {
-    G = Gauge::LockGauge(Chns[i]);
+  Gauge* rez = nullptr;
+  for (auto G : Chns) {
     if (G->radius < R0 || G->radius > R1) continue;
     w    = (G->radius - R0) / (R1 - R0);
-    delt = abs((rc.bottom - bf - (int) (w * Rh)) - y);
+    int delt = abs((rc.bottom - bf - (int) (w * Rh)) - y);
     if (delt < mdelt) {
       mdelt = delt;
-      rez   = i;
+      rez   = G;
     }
-    G->UnlockGauge();
   }
-  if (rez < 0) return;
-  G = Gauge::LockGauge(Chns[rez]);
-  if (IsIconic(G->hWnd)) {
-    ShowWindow(G->hWnd, SW_RESTORE);
+  if (!rez) return;
+  if (IsIconic(rez->hWnd)) {
+    ShowWindow(rez->hWnd, SW_RESTORE);
   } else {
-    SendMessage(hMDI, WM_MDIACTIVATE, (WPARAM) G->hWnd, 0);
+    SendMessage(hMDI, WM_MDIACTIVATE, (WPARAM) rez->hWnd, 0);
   }
-  G->UnlockGauge();
 }
 
 static COLORREF RTColors[] = {
@@ -93,7 +88,7 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
   HPEN hpSave = hpDef;
   HPEN hpClr[NCLR];
   //int i;
-  if (!n) return;
+  if (Chns.empty()) return;
   int Res, LW;
   if ((int) dct < 0) {
     Res = GetDeviceCaps(hdc, LOGPIXELSX);
@@ -120,14 +115,13 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
   int Ph = (int) (height * (P_height / 100.0));
   int Rh = height - Ph;
 
-  double ang = tan(R_angle / 180 * 3.2425926535);
+  double ang = tan(R_angle / 180 * 3.1415926535);
   int Rang   = (int) (Rh * ang);
   int Tlen   = lenght - abs(Rang);
   int Torg   = (R_angle < 0 ? -Rang : 0) + lf;
 
   int h;
   double w;
-  Gauge* G = nullptr;
   DrOpt dr;
   dr.T.Set(T0, T1, 10 | AS_DRAXIS | AS_NOTICK | AS_NODIGIT | AS_LOW | AS_HORIZ | AS_SNAP | AS_MID);
   dr.I.style = AS_NOAXIS | AS_NODIGIT;
@@ -149,8 +143,7 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
   SelectObject(hdc, fntLab);
   SelectObject(hdc, hpDef);
 
-  for (unsigned i = 0; i < n; ++i, G->UnlockGauge()) {
-    G = Gauge::LockGauge(Chns[i]);
+  for (auto G: Chns) {
     if (G->radius < R0 || G->radius > R1) continue;
     w            = (G->radius - R0) / (R1 - R0);
     dr.rcG.left  = Torg + (int) (Rang * w);
@@ -199,7 +192,6 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
       Text(hdc, xt, h0, buf, TA_BASELINE | (P_st == Left ? TA_RIGHT : TA_LEFT));
     }
   }
-  G->UnlockGauge();
   SelectObject(hdc, hpDef);
   Text(hdc, Torg + Rang + (R_left ? -dr.tickP : Tlen + dr.tickP), rc.bottom - Rh - (int) (0.5 * Ph) - bf, "X,m",
        TA_TOP | (R_left ? TA_RIGHT : TA_LEFT));

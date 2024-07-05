@@ -5,14 +5,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
 #include "rt.h"
 
 RT* Rt = nullptr;
 
 static void CreateRT(RT* Rt);
 
-RT::RT() {
-  WinType  = 'R';
+RT::RT() : Window('R') {
   R_left   = TRUE;
   P_st     = Right;
   T0_def   = TRUE;
@@ -20,7 +20,6 @@ RT::RT() {
   R0_def   = TRUE;
   R1_def   = TRUE;
   clr      = TRUE;
-  n        = 0;
   P_height = 10;
   R_angle  = 0;
 }
@@ -31,7 +30,7 @@ struct LinesChk {
 } Lines[GMAX];
 int nLines = 0;
 
-HLOCAL iG[GMAX];
+Gauge* iG[GMAX] = { nullptr };
 
 int
 FindLine(int line) {
@@ -55,7 +54,7 @@ void
 CheckLine(HWND hDlg, int ind, BOOL G_chk = TRUE) {
   SendDlgItemMessage(hDlg, IDC_RT_LINES, LB_SETSEL, TRUE, ind);
   Lines[ind].chk = TRUE;
-  for (GaugeIterator G; G; ++G) {
+  for (auto G : GaugeIterator()) {
     if (G->angle == Lines[ind].line) {
       G->displayed = TRUE;
       if (G_chk) G->checked = TRUE;
@@ -67,7 +66,7 @@ void
 UnCheckLine(HWND hDlg, int ind) {
   SendDlgItemMessage(hDlg, IDC_RT_LINES, LB_SETSEL, FALSE, ind);
   Lines[ind].chk = FALSE;
-  for (GaugeIterator G; G; ++G) {
+  for (auto G : GaugeIterator()) {
     if (G->angle == Lines[ind].line) {
       G->displayed = FALSE;
       G->checked   = FALSE;
@@ -79,7 +78,7 @@ void
 LinesList(HWND hDlg) {
   nLines = 0;
   {
-    for (GaugeIterator G; G; ++G) {
+    for (auto G : GaugeIterator()) {
       AddLine(G->angle);
     }
   }
@@ -95,11 +94,11 @@ ShowChns(HWND hDlg) {
   if (SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETCOUNT, 0, 0)) {
     while (SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_DELETESTRING, 0, 0));
   }
-  for (GaugeIterator G; G; ++G) {
+  for (auto G : GaugeIterator()) {
     if (G->displayed) {
       sprintf(buf, "%s-%.2fm", G->ChNum, G->radius);
       j     = (int) SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_ADDSTRING, 0, (LPARAM) (LPSTR) buf);
-      iG[j] = G->hThis;
+      iG[j] = G;
       if (G->checked) {
         SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_SETSEL, TRUE, j);
       }
@@ -174,14 +173,13 @@ RT::ReadDlg(HWND hDlg) {
   N = (int) SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETSELCOUNT, 0, 0);
   if (!N) return FALSE;
   N = (int) SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETCOUNT, 0, 0);
-  n = 0;
   for (i = 0; i < N; ++i) {
     if (SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETSEL, i, 0) <= 0) continue;
     SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETTEXT, i, (LPARAM) (LPSTR) buf);
     *strchr(buf, '-') = 0;
     Gauge* G          = GaugeByChNum(buf);
     if (G) {
-      if (!n) {
+      if (Chns.empty()) {
         R0 = G->radius;
         R1 = G->radius;
         T0 = G->Start();
@@ -192,9 +190,7 @@ RT::ReadDlg(HWND hDlg) {
         CMIN(T0, G->Start());
         CMAX(T1, G->Final());
       }
-      Chns[n] = G->hThis;
-      n++;
-      G->UnlockGauge();
+      Chns.push_back(G);
     }
   } //for(i
   R0_def = !GetDlgItemUnit(hDlg, IDC_RT_RMIN, R0, ULen);
@@ -236,7 +232,7 @@ RT::InitDlg(HWND hDlg) {
   else
     SetDlgItemText(hDlg, IDC_RT_RMAX, "Auto");
   {
-    for (GaugeIterator G; G; ++G) {
+    for (auto G : GaugeIterator()) {
       G->displayed = FALSE;
       G->checked   = FALSE;
     }
@@ -246,11 +242,9 @@ RT::InitDlg(HWND hDlg) {
   }
   while (SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_DELETESTRING, 0, 0) > 0) {
   }
-  for (i = 0; i < n; ++i) {
-    Gauge* G   = Gauge::LockGauge(Chns[i]);
+  for (auto G : Chns) {
     j          = FindLine(G->angle);
     G->checked = TRUE;
-    G->UnlockGauge();
     CheckLine(hDlg, j, FALSE);
   }
   ShowChns(hDlg);
@@ -308,9 +302,8 @@ DLGPROC(RTdlg) {
             case LBN_SELCHANGE: {
               i          = (int) SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETCARETINDEX, 0, 0);
               j          = (SendDlgItemMessage(hDlg, IDC_RT_CHNS, LB_GETSEL, i, 0) > 0);
-              Gauge* G   = Gauge::LockGauge(iG[i]);
+              Gauge* G   = iG[i];
               G->checked = j;
-              G->UnlockGauge();
             } //LBN_SELCHANGE
           } //switch(wNotCode)
         } break; //case IDC_RT_CHNS
@@ -368,7 +361,6 @@ DLGPROC(RTdlg) {
             if (!Rt->hWnd) CreateRT(Rt);
             else
               InvalidateRect(Rt->hWnd, nullptr, TRUE);
-            Rt->UnlockWindow();
             Rt = nullptr;
             EndDialog(hDlg, 1);
           }
@@ -441,16 +433,15 @@ RT::Load(char* fname) {
     P_st = Left;
 
   GetPrivateProfileString("RT", "Nch", "0", buf, 100, fname);
-  n = atoi(buf);
-
+  int n = atoi(buf);
+  Chns.clear();
   for (i = 0; i < n; ++i) {
     char cnum[5];
     cnum[0] = 'C';
     itoa(i, cnum + 1, 10);
     GetPrivateProfileString("Channels", cnum, "---", buf, 100, fname);
     G       = GaugeByChNum(buf);
-    Chns[i] = G->hThis;
-    if (G) G->UnlockGauge();
+    Chns.push_back(G);
   }
   GetPrivateProfileString("RT", "FontName", "Arial", buf, 100, fname);
   strcpy(FontName, buf);
@@ -496,14 +487,12 @@ RT::Save(char* fname) {
   WritePrivateProfileString("RT", "Color", (clr ? "Yes" : "No"), fname);
   WritePrivateProfileString("RT", "Raxis", (R_left ? "Left" : "Right"), fname);
   WritePrivateProfileString("RT", "Paxis", (P_st == Left ? "Left" : (P_st == Right ? "Right" : "No")), fname);
-  itoa(n, buf, 10);
+  itoa(Chns.size(), buf, 10);
   WritePrivateProfileString("RT", "Nch", buf, fname);
-  for (i = 0; i < n; ++i) {
-    G      = Gauge::LockGauge(Chns[i]);
+  for (auto G : Chns) {
     buf[0] = 'C';
     itoa(i, buf + 1, 10);
     WritePrivateProfileString("Channels", buf, G->ChNum, fname);
-    G->UnlockGauge();
   }
 
   WritePrivateProfileString("RT", "FontName", FontName, fname);
@@ -511,4 +500,11 @@ RT::Save(char* fname) {
   WritePrivateProfileString("RT", "FontBold", (FontType & BOLD_FONTTYPE ? "1" : "0"), fname);
   WritePrivateProfileString("RT", "FontItalic", (FontType & ITALIC_FONTTYPE ? "1" : "0"), fname);
   WritePrivateProfileString("RT", "LineWidth", gcvt(LineWidth * 0.1, 4, buf), fname);
+}
+bool
+RT::RemoveChn(Gauge* G) {
+  auto it = std::ranges::find(Chns, G);
+  if (it == Chns.end()) return false;
+  Chns.erase(it);
+  return true;
 }

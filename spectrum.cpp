@@ -7,10 +7,9 @@
 
 void transform(double* val, double* freq_re, double* freq_im, int len);
 
-spectrum::spectrum(Gauge* G) {
+spectrum::spectrum(Gauge* g) : CutWnd('S'), G{g} {
   long i, j, n;
   double *A, *re, *im;
-  hG = G->hThis;
   n  = G->final - G->start;
   i  = 1;
   while (i < n) i <<= 1;
@@ -84,10 +83,6 @@ spectrum::UnlockData() {
 }*/
 }
 
-void
-spectrum::AtUnlock() {
-  UnlockData();
-}
 
 spectrum::~spectrum() {
   //int i;
@@ -102,9 +97,7 @@ LocalFree(Phase);
 
 char*
 spectrum::PicName() {
-  Gauge* G = Gauge::LockGauge(hG);
   sprintf(buf, "%sfft%s", G->Exp->Dir, G->ChNum);
-  G->UnlockGauge();
   return buf;
 }
 

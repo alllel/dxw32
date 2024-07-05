@@ -14,6 +14,7 @@ class CutWnd : public Window {
   virtual BOOL WinProc(Msg& M);
   virtual void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) = 0;
   void DrawCutRect(HDC);
+  explicit CutWnd(char t) : Window(t) {}
 };
 
 #endif

@@ -7,10 +7,10 @@
 #include "cutwnd.h"
 #include "pline.h"
 #include <dos.h>
+#include <ranges>
 
 /******************************************************************************/
 
-class GaugeIterator;
 class RTbyGaugeIterator;
 class RT;
 struct Time {
@@ -45,9 +45,6 @@ struct Experiment {
 Experiment* SetupExp();
 
 class Gauge : public CutWnd {
-  friend class GaugeIterator;
-  static HLOCAL hFirst, hLast;
-  HLOCAL hNext, hPrev;
 
  public:
   // IXC file date
@@ -124,9 +121,6 @@ class Gauge : public CutWnd {
   void FreeI();
   void CalcI();
 
-  void UnlockGauge() { UnlockWindow(); }
-  static Gauge* LockGauge(HLOCAL h);
-  virtual void AtUnlock();
 
   // Data preparation
   void Setup();
@@ -200,47 +194,16 @@ class Gauge : public CutWnd {
 Gauge* GaugeByWnd(HWND);
 Gauge* GaugeByChNum(char*);
 
-class GaugeIterator {
-  Gauge* curr;
+template <typename T>
+  requires std::is_base_of_v<Window, T>
+inline auto
+WindowIterator() {
+  return std::views::transform(Window::All(), [](Window* w) { return dynamic_cast<T*>(w); })
+      | std::views::filter([](T* w) { return w != nullptr; });
+}
 
- public:
-  GaugeIterator() {
-    curr = Gauge::LockGauge(Gauge::hFirst);
-  }
-  Gauge* reset() {
-    if (curr) curr->UnlockGauge();
-    curr = Gauge::LockGauge(Gauge::hFirst);
-    return curr;
-  }
-  operator Gauge*() { return curr; }
-  Gauge* operator->() { return curr; }
-  int operator!() { return !curr; }
-  Gauge* operator++();
-  ~GaugeIterator();
-};
-
-class RTbyGaugeIterator {
-  HWND hWin;
-  Gauge* G;
-  RT* rt;
-  void step();
-  void release();
-
- public:
-  RTbyGaugeIterator& operator++() {
-    step();
-    return *this;
-  }
-  operator RT*() { return rt; }
-  RT* operator->() { return rt; }
-  RTbyGaugeIterator(Gauge* g) {
-    G    = g;
-    hWin = nullptr;
-    rt   = nullptr;
-    step();
-  }
-  ~RTbyGaugeIterator() { release(); }
-};
+inline auto
+GaugeIterator() { return WindowIterator<Gauge>();}
 
 #include "gaug_inl.h"
 

@@ -34,7 +34,7 @@ DLGPROC(UnitProc) {
       SetDlgItemText(hDlg, IDC_UN_O_SH, "0");
       SetDlgItemText(hDlg, IDC_UN_N_SH, "0");
       {
-        for (GaugeIterator G; G; ++G) {
+        for (auto G : GaugeIterator())  {
           if (!lstrcmp(G->unit, ((Gauge*) lParam)->unit)) SendDlgItemMessage(hDlg, IDC_UN_LIST, LB_ADDSTRING, 0, (LPARAM) (LPSTR) (G->ChNum));
         }
       }
@@ -54,7 +54,7 @@ DLGPROC(UnitProc) {
           GetDlgItemDouble(hDlg, IDC_UN_N_SH, ns);
           GetDlgItemDouble(hDlg, IDC_UN_O_SH, os);
           {
-            for (GaugeIterator G; G; ++G) {
+            for (auto G : GaugeIterator())  {
               Index = FindString(hDlg, G->ChNum);
               if (Index == NOMATCH) continue;
               if (SendDlgItemMessage(hDlg, IDC_UN_LIST, LB_GETSEL, Index, 0) > 0) {
@@ -95,7 +95,7 @@ DLGPROC(TShiftProc) {
     case WM_INITDIALOG:
       SetDlgItemText(hDlg, IDC_TS_VAL, "0");
       {
-        for (GaugeIterator G; G; ++G) {
+        for (auto G : GaugeIterator())  {
           SendDlgItemMessage(hDlg, IDC_TS_LIST, LB_ADDSTRING, 0, (LPARAM) (LPSTR) (G->ChNum));
         }
       }
@@ -111,7 +111,7 @@ DLGPROC(TShiftProc) {
           double shift = 0;
           GetDlgItemDouble(hDlg, IDC_TS_VAL, shift);
           {
-            for (GaugeIterator G; G; ++G) {
+            for (auto G : GaugeIterator())  {
               long res = SendDlgItemMessage(hDlg, IDC_TS_LIST, LB_FINDSTRING, 0, (LPARAM) (LPSTR) (G->ChNum));
               if (res == LB_ERR) continue;
               Index = (WPARAM) res;

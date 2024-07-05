@@ -6,11 +6,10 @@
 #include <commdlg.h>
 #include <commctrl.h>
 #include <cstring>
+#include <algorithm>
 
-HLOCAL Window::hLast = nullptr;
+std::vector<Window*> Window::all_;
 
-void
-Window::AtUnlock() {}
 
 DLGPROC(WSProc);
 
@@ -23,7 +22,7 @@ WINPROC(ChildWinProc) {
       M.ret = W->Command(wParam);
       break;
     case WM_DESTROY:
-      W->Destroy = TRUE;
+      delete W;
       break;
     case WM_PAINT:
       if (!IsIconic(hWnd)) {
@@ -41,7 +40,6 @@ WINPROC(ChildWinProc) {
       if (!W->WinProc(M))
         M.ret = DefMDIChildProc(hWnd, msg, wParam, lParam);
   }
-  W->UnlockWindow();
   return M.ret;
 }
 
@@ -75,8 +73,9 @@ Window::Command(WPARAM cmd) {
     case CM_LINEWIDTH:
       if (SelLW()) InvalidateRect(hWnd, nullptr, TRUE);
       return TRUE;
+    default:
+      return FALSE;
   }
-  return FALSE;
 }
 
 BOOL
@@ -144,8 +143,9 @@ DLGPROC(LWDlgProc) {
           }
       }
       return FALSE;
+    default:
+      return FALSE;
   }
-  return FALSE;
 }
 
 BOOL
@@ -317,12 +317,11 @@ Window::ToFile() {
 void
 Window::Create(MDICREATESTRUCT& cs) {
   hWnd = (HWND) SendMessage(hMDI, WM_MDICREATE, 0, (LPARAM) (LPMDICREATESTRUCT) &cs);
-  if (hWnd) SetWinHL(hWnd, hThis);
 }
 
 Window::~Window() {
-  if (hWnd) SetWinHL(hWnd, nullptr);
-  hLast = hThis;
+  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
+  if (it != all_.end()) all_.erase(it);
 }
 
 DLGPROC(WSProc) {

@@ -9,39 +9,6 @@
 
 void trim(char* str);
 
-void
-RTbyGaugeIterator::release() {
-  if (rt) rt->UnlockWindow();
-  rt = nullptr;
-}
-
-void
-RTbyGaugeIterator::step() {
-  int i;
-  Window* W;
-  release();
-  if (hWin) hWin = ::GetWindow(hWin, GW_HWNDNEXT);
-  else
-    hWin = ::GetWindow(G->hWnd, GW_HWNDFIRST);
-  while (hWin) {
-    W = Window::GetWindow(hWin);
-    if (W) {
-      if (W->WinType == 'R') {
-        rt = (RT*) W;
-        for (i = 0; i < rt->n; i++) {
-          if (rt->Chns[i] == G->hThis) return;
-        }
-        rt = nullptr;
-      }
-      W->UnlockWindow();
-    }
-    hWin = ::GetWindow(hWin, GW_HWNDNEXT);
-  }
-}
-
-HLOCAL Gauge::hFirst = nullptr;
-HLOCAL Gauge::hLast  = nullptr;
-
 int Experiment::nExp = 0;
 
 Experiment*
@@ -84,32 +51,8 @@ Experiment::operator==(Experiment& E) {
   return 1;
 }
 
-Gauge*
-GaugeIterator::operator++() {
-  if (!curr) return curr;
-  HLOCAL h = curr->hNext;
-  curr->UnlockGauge();
-  curr = Gauge::LockGauge(h);
-  return curr;
-}
-
-GaugeIterator::~GaugeIterator() {
-  if (curr) curr->UnlockGauge();
-}
-
-Gauge::Gauge(Experiment* e) {
+Gauge::Gauge(Experiment* e) : CutWnd('G') {
   nGauges++;
-  if (hLast) {
-    Gauge* last = LockGauge(hLast);
-    last->hNext = hThis;
-    hPrev       = last->hThis;
-    last->UnlockGauge();
-  } else {
-    hFirst = hThis;
-    hPrev  = nullptr;
-  }
-  hNext = nullptr;
-  hLast = hThis;
 
   Exp = e;
   if (Exp) Exp->Inc();
@@ -138,7 +81,7 @@ Gauge::Gauge(Experiment* e) {
 
 Gauge*
 GaugeByChNum(char* cn) {
-  for (GaugeIterator G; G; ++G) {
+  for (auto G : GaugeIterator()) {
     if (!stricmp(cn, G->ChNum)) return G;
   }
   return nullptr;
@@ -179,21 +122,6 @@ Gauge::PicName() //virtual
 
 Gauge::~Gauge() //virtual
 {
-  nGauges--;
-  if (hPrev) {
-    Gauge* prev = LockGauge(hPrev);
-    prev->hNext = hNext;
-    prev->UnlockGauge();
-  } else {
-    hFirst = hNext;
-  }
-  if (hNext) {
-    Gauge* next = LockGauge(hNext);
-    next->hPrev = hPrev;
-    next->UnlockGauge();
-  } else {
-    hLast = hPrev;
-  }
   if (Exp) Exp->Dec();
   FreeD();
   if (Rates) delete Rates;
@@ -245,13 +173,6 @@ Gauge::LockI() {
     imp = (float*) GlobalLock(hImp);
     if (rd) CalcI();
   }
-  return;
-}
-
-void
-Gauge::AtUnlock() //virtual
-{
-  UnlockD();
 }
 
 void
@@ -378,8 +299,8 @@ Gauge::Redraw() {
   //RT*R;
   //int i;
   {
-    for (RTbyGaugeIterator RT(this); RT; ++RT) {
-      InvalidateRect(RT->hWnd, nullptr, TRUE);
+    for (auto rt : RTbyGaugeIterator(this)) {
+      InvalidateRect(rt->hWnd, nullptr, TRUE);
     }
   }
   /*

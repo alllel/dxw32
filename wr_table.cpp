@@ -33,7 +33,7 @@ WriteTable() {
   BeginWait();
   fprintf(tab, "Ch\tR\tline\tT1\tP1\tT2\tP2\tValue\tI+\tI-\tI\n");
   {
-    for (GaugeIterator G; G; ++G) {
+    for (auto G : GaugeIterator())  {
       G->LockI();
       fprintf(tab, "%s\t%s\t%d\t", G->ChNum, ftoa(G->radius), G->angle);
       if (G->pts[0] == -1) {

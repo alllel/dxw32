@@ -116,7 +116,6 @@ MoveCutFrame(POINTS& pt) {
   Window* W  = Window::GetWindow(hCapWin);
   auto* CW = dynamic_cast<CutWnd*>(W);
   if (CW) CW->SetSize(hCutDlg, rcCut);
-  W->UnlockWindow();
 }
 
 void

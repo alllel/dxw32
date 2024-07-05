@@ -3,7 +3,7 @@
 #include "axis.h"
 
 class spectrum : public CutWnd {
-  HLOCAL hG;
+  Gauge*G=nullptr;
   //	HLOCAL Abs,Phase;
   long N;
   double *abs, AbsMax;
@@ -15,7 +15,6 @@ class spectrum : public CutWnd {
   RECT rcG;
   //Window
   virtual ~spectrum();
-  virtual void AtUnlock();
   virtual void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr);
   virtual BOOL Command(WPARAM cmd);
   virtual BOOL WinProc(Msg& M);

@@ -185,9 +185,7 @@ exit:
   cs.lParam  = 0;
   cs.szTitle = G->WinTitle();
   G->Create(cs);
-  if (G->hWnd) {
-    G->UnlockGauge();
-  } else {
+  if (!G->hWnd) {
     delete G;
   }
   return 0;

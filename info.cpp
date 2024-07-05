@@ -49,7 +49,6 @@ DLGPROC(InfoProc) {
             G->SetTitle();
             G->SetInfo();
             SetFocus(G->hWnd);
-            G->UnlockGauge();
           }
         } break;
       }
@@ -144,7 +143,6 @@ ReadInfo() {
     G->radius = R;
     G->angle  = A;
 
-    G->UnlockGauge();
   }
   fclose(inf);
 }
@@ -177,8 +175,7 @@ WriteInfo() {
     MessageBox(hFrame, "Can't open file", fname, MB_OK | MB_ICONEXCLAMATION);
     return;
   }
-  GaugeIterator G;
-  for (; G; ++G) {
+  for (auto G:GaugeIterator()) {
     fprintf(inf, "%s %d%c %lg %d\n", G->ChNum, G->number, G->g_type, G->radius, G->angle);
   }
   fclose(inf);

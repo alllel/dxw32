@@ -34,7 +34,7 @@ RenumberChannels() {
   char Prefix[6], Suffix[6], Rez[20];
   int S, F, Num;
   if (shift) {
-    for (GaugeIterator G; G; ++G) {
+    for (auto G : GaugeIterator())  {
       for (S = 0; G->ChNum[S]; ++S) {
         if (isdigit(G->ChNum[S])) break;
       }

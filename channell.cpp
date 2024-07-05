@@ -29,12 +29,9 @@ Gauge::WinProc(Msg& M) {
         return TRUE;
       } else {
         Changed = 1;
-        for (RTbyGaugeIterator RT(this); RT; ++RT) {
-          int i;
-          for (i = 0; RT->Chns[i] != hThis; ++i);
-          for (++i; i < RT->n; ++i) RT->Chns[i - 1] = RT->Chns[i];
-          RT->n--;
-          InvalidateRect(RT->hWnd, nullptr, TRUE);
+        for (auto rt : RTbyGaugeIterator(this)) {
+          if (rt->RemoveChn(this))
+            InvalidateRect(rt->hWnd, nullptr, TRUE);
         }
         return FALSE;
       }
@@ -122,7 +119,7 @@ Gauge::Command(WPARAM cmd) {
       SetInfo();
       break;
     case CM_FFT:
-      (new spectrum(this))->UnlockWindow();
+      new spectrum(this);
       break;
     default:
       return FALSE;

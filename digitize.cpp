@@ -48,7 +48,7 @@ DLGPROC(DigDlg) {
     case WM_INITDIALOG: {
       hDig = hDlg;
       {
-        for (GaugeIterator G; G; ++G) {
+        for (auto G : GaugeIterator()) {
           SendDlgItemMessage(hDlg, IDC_DIG_CHN, CB_ADDSTRING, 0, (LPARAM) (LPSTR) G->ChNum);
         }
       }
@@ -63,7 +63,6 @@ DLGPROC(DigDlg) {
             ReleaseDC(hChan, hdc);
           }
           G->SetDigitize();
-          G->UnlockGauge();
         }
       }
       ret = 1;
@@ -88,7 +87,6 @@ DLGPROC(DigDlg) {
               }
             }
             G->PointerSet(n);
-            G->UnlockGauge();
           }
         } break;
         case IDC_DIG_MAX: {
@@ -105,7 +103,6 @@ DLGPROC(DigDlg) {
               }
             }
             G->PointerSet(n);
-            G->UnlockGauge();
           }
         } break;
         case IDOK: {
@@ -127,7 +124,6 @@ DLGPROC(DigDlg) {
               SendMessage(hMDI, WM_MDIRESTORE, (WPARAM) G->hWnd, 0);
             G->PointerSet(i);
             SetFocus(G->hWnd);
-            G->UnlockGauge();
           }
         } break;
         case IDC_DIG_PT1:
@@ -135,7 +131,6 @@ DLGPROC(DigDlg) {
           G = SelectedGauge();
           if (G) {
             G->PointSet(wParam == IDC_DIG_PT1 ? 0 : 1);
-            G->UnlockGauge();
           }
         } break;
       }
