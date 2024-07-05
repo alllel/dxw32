@@ -26,7 +26,7 @@ HBRUSH hbrNull = nullptr, hbrBlack = nullptr, hbrGray = nullptr;
 HPEN hpPnt = nullptr, hpPts = nullptr, hpImp = nullptr, hpDef = nullptr;
 
 void
-GetDirs(void) {
+GetDirs() {
   GetPrivateProfileString("Krenz", "Directory", ".", Directory, sizeof(Directory), "dxw.ini");
   GetPrivateProfileString("directories", "main", ".", MainDir, sizeof(MainDir), "dxw.ini");
   GetPrivateProfileString("directories", "head", "HEAD\\", HeadDir, sizeof(HeadDir), "dxw.ini");
@@ -35,7 +35,7 @@ GetDirs(void) {
 }
 
 void
-SaveDirs(void) {
+SaveDirs() {
   WritePrivateProfileString("Krenz", "Directory", Directory, "dxw.ini");
   WritePrivateProfileString("directories", "main", MainDir, "dxw.ini");
   WritePrivateProfileString("directories", "head", HeadDir, "dxw.ini");

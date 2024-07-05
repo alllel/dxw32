@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <memory.h>
 
-static int CloseAll(void);
+static int CloseAll();
 static int Command(WPARAM);
 static void PrSetup();
 void Write(BOOL);
@@ -47,7 +47,7 @@ WINPROC(MainWin) {
 }
 
 int
-CloseAll(void) {
+CloseAll() {
   HWND hChild;
   if (Changed) switch (MessageBox(hFrame, "Save experiment?", "DXW", MB_ICONQUESTION | MB_YESNOCANCEL)) {
       case IDYES:
@@ -73,7 +73,7 @@ CloseAll(void) {
 }
 
 static int
-RestAll(void) {
+RestAll() {
   HWND hChld, hCurr;
   hCurr = hChld = (HWND) SendMessage(hMDI, WM_MDIGETACTIVE, 0, 0);
   if (!hChld) return 0;
@@ -86,7 +86,7 @@ RestAll(void) {
 }
 
 static int
-MinAll(void) {
+MinAll() {
   HWND hChld, hCurr;
   hCurr = hChld = (HWND) SendMessage(hMDI, WM_MDIGETACTIVE, 0, 0);
   if (!hChld) return 0;

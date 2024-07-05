@@ -11,8 +11,8 @@ class linterp {
 
  public:
   unsigned autodelete : 1;
-  void recalculate(void);
-  linterp(void) {
+  void recalculate();
+  linterp() {
     length     = 0;
     X          = nullptr;
     F          = nullptr;

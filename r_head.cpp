@@ -110,7 +110,7 @@ OpenExp() {
 }
 
 void
-SetTitle(void) {
+SetTitle() {
   switch (Experiment::nExp) {
     case 1: {
       sprintf(buf, "DXW:%s (%d channels)", ExpName, nGauges);

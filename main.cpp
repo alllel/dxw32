@@ -8,7 +8,7 @@ HGLOBAL hDevNames = nullptr, hDevMode = nullptr;
 HACCEL hAccel;
 
 static void ShutDown();
-static int MessageLoop(void);
+static int MessageLoop();
 static int FirstInit(HINSTANCE);
 static int Init(int);
 
@@ -28,7 +28,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR cmdline, int cmdshow) {
 }
 
 int
-MessageLoop(void) {
+MessageLoop() {
   MSG msg;
   while (GetMessage(&msg, (HWND) nullptr, 0, 0)) {
     if (hInfo && IsDialogMessage(hInfo, &msg)) continue;

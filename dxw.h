@@ -90,12 +90,12 @@ struct FileData : OFN {
 
 extern FileData ofn;
 
-void GetDirs(void);
-void SaveDirs(void);
+void GetDirs();
+void SaveDirs();
 int ChDir(char*);
 void cbs(char*);
 int OpenExp();
-void SetTitle(void);
+void SetTitle();
 void Digitize();
 void WriteTable();
 void Info();
