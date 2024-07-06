@@ -30,7 +30,7 @@ DLGPROC(RenameDlg) {
 
 void
 RenumberChannels() {
-  int shift = DLG(IDD_RENUMBER, RenameDlg, NULL);
+  int shift = DLG(IDD_RENUMBER, RenameDlg, 0);
   char Prefix[6], Suffix[6], Rez[20];
   int S, F, Num;
   if (shift) {

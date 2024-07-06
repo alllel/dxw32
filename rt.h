@@ -17,10 +17,10 @@ class RT : public Window {
   bool RemoveChn(Gauge*);
   void InitDlg(HWND);
   int ReadDlg(HWND);
-  virtual void Draw(HDC, RECT&, DCtype, RECT*);
-  virtual char* PicName();
-  virtual BOOL Command(WPARAM cmd);
-  virtual BOOL WinProc(Msg& M);
+  void Draw(HDC, RECT&, DCtype, RECT*) override;
+  char* PicName() override;
+  BOOL Command(WPARAM cmd) override;
+  BOOL WinProc(Msg& M) override;
   void FindChannell(WORD);
   void Load(char* fname);
   void Save(char* fname);

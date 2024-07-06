@@ -14,15 +14,15 @@ class spectrum : public CutWnd {
   Axis Fr, Am;
   RECT rcG;
   //Window
-  virtual ~spectrum();
-  virtual void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr);
-  virtual BOOL Command(WPARAM cmd);
-  virtual BOOL WinProc(Msg& M);
-  virtual char* PicName();
+  ~spectrum() override;
+  void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) override;
+  BOOL Command(WPARAM cmd) override;
+  BOOL WinProc(Msg& M) override;
+  char* PicName() override;
   //CutWnd
-  virtual int GetCutRC(RECT&);
-  virtual void SetSize(HWND, RECT&);
-  virtual void FinishCut(RECT&);
+  int GetCutRC(RECT&) override;
+  void SetSize(HWND, RECT&) override;
+  void FinishCut(RECT&)override;
 
  public:
   spectrum(Gauge* _g);

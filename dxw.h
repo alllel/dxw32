@@ -64,7 +64,7 @@ DLGPROC(StepDlg);
 DLGPROC(RTdlg);
 DLGPROC(UnitProc);
 
-int DLG(int ID, DLGPROC(Proc), LPARAM lp = NULL);
+int DLG(int ID, DLGPROC(Proc), LPARAM lp = 0);
 
 void GetDlgItemDouble(HWND hDlg, int ctrl, double& val);
 void SetDlgItemDouble(HWND hDlg, int ctrl, double val);

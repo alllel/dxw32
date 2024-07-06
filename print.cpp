@@ -52,3 +52,5 @@ Window::ToPrinter() {
   DeleteDC(pd.hDC);
   SetCursor(hc);
 }
+
+

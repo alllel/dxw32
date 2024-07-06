@@ -7,7 +7,7 @@
 
 void transform(double* val, double* freq_re, double* freq_im, int len);
 
-spectrum::spectrum(Gauge* g) : CutWnd('S'), G{g} {
+spectrum::spectrum(Gauge* g) : G { g } {
   long i, j, n;
   double *A, *re, *im;
   n  = G->final - G->start;

@@ -51,12 +51,11 @@ Experiment::operator==(Experiment& E) {
   return 1;
 }
 
-Gauge::Gauge(Experiment* e) : CutWnd('G') {
+Gauge::Gauge(Experiment* e) {
   nGauges++;
 
   Exp = e;
   if (Exp) Exp->Inc();
-  WinType   = 'G';
   ChNum[0]  = 0;
   Z0        = 0;
   ID[0]     = 0;

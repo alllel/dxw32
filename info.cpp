@@ -87,7 +87,7 @@ ReadInfo() {
   ofn.lpstrTitle        = "Read Info from file:";
   ofn.Flags             = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
   ofn.lpstrDefExt       = "TXT";
-  ofn.lCustData         = NULL;
+  ofn.lCustData         = 0;
   ofn.lpfnHook          = nullptr;
   ofn.lpTemplateName    = nullptr;
   fname[0]              = 0;
@@ -165,7 +165,7 @@ WriteInfo() {
   ofn.lpstrTitle        = "Write info to file:";
   ofn.Flags             = OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
   ofn.lpstrDefExt       = "TXT";
-  ofn.lCustData         = NULL;
+  ofn.lCustData         = 0;
   ofn.lpfnHook          = nullptr;
   ofn.lpTemplateName    = nullptr;
   fname[0]              = 0;

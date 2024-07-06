@@ -136,9 +136,9 @@ class Gauge : public CutWnd {
   void SetDigitize();
 
   // Cutting
-  virtual int GetCutRC(RECT& rc);
-  virtual void FinishCut(RECT& rc);
-  virtual void SetSize(HWND, RECT&);
+  int GetCutRC(RECT& rc) override;
+  void FinishCut(RECT& rc) override;
+  void SetSize(HWND, RECT&) override;
   void SetInfo();
 
   // Menu commands & window messages
@@ -150,9 +150,9 @@ class Gauge : public CutWnd {
   void Restore();
 
   void Redraw();
-  virtual void Draw(HDC, RECT&, DCtype, RECT*);
-  virtual BOOL Command(WPARAM cmd);
-  virtual BOOL WinProc(Msg& M);
+  void Draw(HDC, RECT&, DCtype, RECT*) override;
+  BOOL Command(WPARAM cmd) override;
+  BOOL WinProc(Msg& M) override;
   void Plot(HDC, DrOpt&);
 
   // Auxilary

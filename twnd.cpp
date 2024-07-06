@@ -10,6 +10,26 @@
 
 std::vector<Window*> Window::all_;
 
+Window*
+Window::GetWindow(HWND hWnd) {
+  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
+  return it == all_.end() ? nullptr : *it;
+}
+
+Window::~Window() {
+  auto it = std::ranges::find(all_, this);
+  if (it != all_.end()) all_.erase(it);
+}
+
+void
+Window::Create(MDICREATESTRUCT& cs) {
+  hWnd = (HWND) SendMessage(hMDI, WM_MDICREATE, 0, (LPARAM) (LPMDICREATESTRUCT) &cs);
+  if (hWnd) {
+    all_.push_back(this);
+  } else {
+    MessageBox(hFrame, cs.szTitle, "Cannot Create Window", MB_OK);
+  }
+}
 
 DLGPROC(WSProc);
 
@@ -76,6 +96,7 @@ Window::Command(WPARAM cmd) {
     default:
       return FALSE;
   }
+  return FALSE;
 }
 
 BOOL
@@ -314,15 +335,7 @@ Window::ToFile() {
   }
 }
 
-void
-Window::Create(MDICREATESTRUCT& cs) {
-  hWnd = (HWND) SendMessage(hMDI, WM_MDICREATE, 0, (LPARAM) (LPMDICREATESTRUCT) &cs);
-}
 
-Window::~Window() {
-  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
-  if (it != all_.end()) all_.erase(it);
-}
 
 DLGPROC(WSProc) {
   unsigned w, h;

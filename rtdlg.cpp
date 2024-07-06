@@ -12,7 +12,7 @@ RT* Rt = nullptr;
 
 static void CreateRT(RT* Rt);
 
-RT::RT() : Window('R') {
+RT::RT() {
   R_left   = TRUE;
   P_st     = Right;
   T0_def   = TRUE;
