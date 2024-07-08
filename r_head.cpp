@@ -14,6 +14,7 @@
 int
 OpenExp() {
   buf[0]        = 0;
+  FileData ofn;
   ofn.hwndOwner = hFrame;
   ofn.Flags     = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
   if (!GetOpenFileName(&ofn)) return 0;

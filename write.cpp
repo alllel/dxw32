@@ -14,6 +14,7 @@ Write(BOOL SaveAs) {
     Gauge* G = *GaugeIterator().begin();
     if (G) E = G->Exp;
   } else {
+    FileData ofn;
     ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
     buf[0]    = 0;
     if (!GetSaveFileName(&ofn)) return;

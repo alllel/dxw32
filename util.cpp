@@ -98,7 +98,7 @@ FileData::FileData() {
   lpstrDefExt     = "IXC";
 }
 
-FileData ofn;
+//FileData ofn;
 
 int
 DLG(int ID, DLGPROC Proc, LPARAM lp) {

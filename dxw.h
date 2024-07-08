@@ -88,7 +88,7 @@ struct FileData : OFN {
   FileData();
 };
 
-extern FileData ofn;
+//extern FileData ofn;
 
 void GetDirs();
 void SaveDirs();

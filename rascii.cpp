@@ -11,7 +11,7 @@
 #include <fstream>
 
 DLGPROC(ImpDlg);
-int R_Ascii(char* fname);
+bool R_Ascii(std::string ascii_file);
 
 int
 ReadAscii() {
@@ -59,33 +59,31 @@ ReadAscii() {
   return 0;
 }
 
-int
-R_Ascii(char* fname) {
-  std::fstream f { fname, std::ios::in };
+bool
+R_Ascii(std::string ascii_file) {
+  std::fstream f { ascii_file, std::ios::in };
   int c;
   bool info;
   char chname[20], unit[20], *s;
   float R;
   int angle;
   if (f.bad()) {
-    MessageBox(hFrame, "Can't open file", fname, MB_OK | MB_ICONEXCLAMATION);
-    return -1;
+    MessageBox(hFrame, "Can't open file", ascii_file.c_str(), MB_OK | MB_ICONEXCLAMATION);
+    return false;
   }
   BeginWait();
-  long size = 1024;
-  long i;
   std::vector<float> T;
   std::vector<float> V;
   c = f.peek();
   if (c == std::fstream::traits_type::eof()) {
-    MessageBox(hFrame, "Empty file", fname, MB_OK | MB_ICONEXCLAMATION);
-    return -1;
+    MessageBox(hFrame, "Empty file", ascii_file.c_str(), MB_OK | MB_ICONEXCLAMATION);
+    return false;
   }
   if (c == '#') {
     f.getline(buf, std::size(buf), '\n');
     if (!f.gcount() || f.eof()) {
-      MessageBox(hFrame, "Empty file", fname, MB_OK | MB_ICONEXCLAMATION);
-      return -1;
+      MessageBox(hFrame, "Empty file", ascii_file.c_str(), MB_OK | MB_ICONEXCLAMATION);
+      return false;
     }
     if (sscanf(buf, "%s R%g A%d U:%s", chname, &R, &angle, unit) == 4) info = true;
     else
@@ -109,7 +107,11 @@ R_Ascii(char* fname) {
   EndWait();
 
   auto np    = T.size();
-  float rate = (T.back() - T.front()) / (np - 1.0f);
+  if (np < 2) {
+    MessageBox(hFrame, "No data", "Read Ascii", MB_OK | MB_ICONEXCLAMATION);
+    return false;
+  }
+  float rate = (T.back() - T.front()) / (static_cast<float>(np) - 1.0f);
   float Vmin, Vmax, T0;
   float dV;
   std::vector<short int> Dat;
@@ -118,7 +120,7 @@ R_Ascii(char* fname) {
   for (int i = 1; i < np; ++i) {
     if (fabs(((T[i] - T[i - 1]) / rate) - 1.0) > 0.01) {
       MessageBox(hFrame, "Non-constant rate", nullptr, MB_OK);
-      return -1;
+      return false;
     }
     if (V[i] < Vmin) Vmin = V[i];
     if (V[i] > Vmax) Vmax = V[i];
@@ -126,7 +128,7 @@ R_Ascii(char* fname) {
   dV = (Vmax - Vmin) / 32000;
   Dat.resize(np);
   for (int i = 0; i < np; ++i) Dat[i] = static_cast<short int>((V[i] - Vmin) / dV);
-  if (Dat.empty()) return -1;
+  if (Dat.empty()) return false;
   auto* G            = new Gauge(nullptr);
   G->V0              = Vmin;
   G->dV              = dV;
@@ -143,15 +145,11 @@ R_Ascii(char* fname) {
     G->radius = R;
     G->angle  = angle;
   } else {
-    s = strrchr(fname, '\\');
-    if (s) {
-      strncpy(G->ID, s + 1, 16);
-    } else {
-      G->ID[0] = 0;
-    }
+    auto name = std::filesystem::path { ascii_file }.stem().string();
+    strncpy(G->ID, name.c_str(), 16);
     if (DLG(ID_IMP, ImpDlg, (LPARAM) G) == IDCANCEL) {
       delete G;
-      return -1;
+      return false;
     }
   }
   MDICREATESTRUCT cs;
@@ -168,7 +166,7 @@ R_Ascii(char* fname) {
   if (!G->hWnd) {
     delete G;
   }
-  return 0;
+  return true;
 }
 
 DLGPROC(ImpDlg) {
