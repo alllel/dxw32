@@ -41,20 +41,19 @@ OpenExp() {
   cs.cy      = CW_USEDEFAULT;
   cs.style   = WS_MINIMIZE;
   cs.lParam  = 0;
-  int c, i;
   long datapos = 0;
   do {
     unsigned short h, min, s, d, m, y;
     fp.getline(buf, std::size(buf), '\n');
     if (fp.gcount() == 0 || buf[0] == '#') continue;
     NG = new Gauge(E);
-    c  = sscanf(buf, R"(%*1d:%[0-9A-Z#]\%16c\%lg\%lg\%3c\Time %hu.%hu.%hu \Date %hu:%hu:%hu)",
-                NG->ChNum,
-                NG->ID,
-                &NG->dV,
-                &NG->V0,
-                NG->unit,
-                &h, &min, &s,
+    int c = sscanf(buf, R"(%*1d:%[0-9A-Z#]\%16c\%lg\%lg\%3c\Time %hu.%hu.%hu \Date %hu:%hu:%hu)",
+                   NG->ChNum,
+                   NG->ID,
+                   &NG->dV,
+                   &NG->V0,
+                   NG->unit,
+                   &h, &min, &s,
                 &d, &m, &y);
     if (c != 11) {
       std::stringstream msg;
@@ -71,13 +70,8 @@ OpenExp() {
     NG->date.month = m;
     NG->date.year  = y;
     NG->FilePos    = datapos;
-    while (true) {
-      auto pos = fp.tellg();
+    while (fp.peek() == '\\') {
       fp.getline(buf, 200, '\n');
-      if (buf[0] != '\\') {
-        fp.seekg(pos);
-        break;
-      }
       Gauge::Piece P { 0, 0, 0 };
       if (sscanf(buf, R"(\%zu\%lE\%lE)", &P.Np, &P.rate, &P.Tstart) != 3) {
         MessageBox(hFrame, buf, "Cant read rates line", MB_OK);

@@ -116,4 +116,15 @@ AlignWindow(HWND hwnd, RECT& rc, int howy, int howx) { AlignWindow(hwnd, rc.top,
 
 void Text(HDC hdc, int x, int y, char const* s, UINT flags);
 
+#ifdef NDEBUG
+constexpr bool Dbg = false;
+#else
+constexpr bool Dbg = true;
+#endif
+
+#define DbgOut \
+  if (!Dbg) {  \
+  } else       \
+    std::cerr << __PRETTY_FUNCTION__ << ' ' << __FILE__ << ':' << __LINE__ << "\n ----> "
+
 #endif
