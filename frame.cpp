@@ -122,11 +122,11 @@ Command(WPARAM cmd) {
       OpenExp();
       if (Experiment::nExp > 1) Changed = 1;
       break;
-    case CM_OPENDL:
-      //if(CloseAll() /* && DLG(ID_OPEN,OpenDlg)==1*/)
-      OpenDL();
-      if (Experiment::nExp > 1) Changed = 1;
-      break;
+//    case CM_OPENDL:
+//      //if(CloseAll() /* && DLG(ID_OPEN,OpenDlg)==1*/)
+//      OpenDL();
+//      if (Experiment::nExp > 1) Changed = 1;
+//      break;
     case CM_SAVE:
       Write(FALSE);
       break;

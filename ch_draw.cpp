@@ -234,7 +234,7 @@ Gauge::Plot(HDC hdc, DrOpt& dr) {
     fi = final;
   }
 
-  Pline* psave;
+  std::unique_ptr<Pline> psave;
 
   if ((dr.I.style & AM_AXIS) == AS_DRAXIS) {
     SelectObject(hdc, hpImp);
@@ -245,11 +245,10 @@ Gauge::Plot(HDC hdc, DrOpt& dr) {
       LineTo(hdc, dr.rcG.right, i);
     }
     if (!PolyCache) {
-      psave = PolyI;
-      PolyI = nullptr;
+      std::swap(psave, PolyI);
     }
     if (!PolyI) {
-      PolyI = new Pline;
+      PolyI = std::make_unique<Pline>();
       BeginWait();
       for (k = st; k < fi; k++) {
         PolyI->FilterPoint(dr.T2scr(P2T(k)), dr.I2scr(Imp(k)));
@@ -260,8 +259,7 @@ Gauge::Plot(HDC hdc, DrOpt& dr) {
     PolyI->Polyline(hdc);
 
     if (!PolyCache) {
-      delete PolyI;
-      PolyI = psave;
+      std::swap(PolyI, psave);
     }
     SelectObject(hdc, hpDef);
   }
@@ -276,11 +274,10 @@ Gauge::Plot(HDC hdc, DrOpt& dr) {
     //	IntersectClipRect(hdc,dr.rcCut.left,dr.rcCut.top,
     //						  dr.rcCut.right,dr.rcCut.bottom);
     if (!PolyCache) {
-      psave = PolyP;
-      PolyP = nullptr;
+      std::swap(psave, PolyP);
     }
     if (!PolyP) {
-      PolyP = new Pline;
+      PolyP = std::make_unique<Pline>();
       BeginWait();
       for (k = st; k < fi; k++) {
         PolyP->FilterPoint(dr.T2scr(P2T(k)), dr.P2scr(clip(Val(k), _Lower, _Upper)));
@@ -291,8 +288,7 @@ Gauge::Plot(HDC hdc, DrOpt& dr) {
     PolyP->Polyline(hdc);
 
     if (!PolyCache) {
-      delete PolyP;
-      PolyP = psave;
+      std::swap(PolyP, psave);
     }
   }
 }

@@ -7,13 +7,14 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+#include <span>
 
 DLGPROC(ImpDlg);
 int R_Ascii(char* fname);
 
 int
 ReadAscii() {
-  char* fnames = new char[4096];
+  char fnames[4096];
   char fname[260], *f;
   char* s;
 
@@ -54,7 +55,6 @@ ReadAscii() {
   } else {
     R_Ascii(fname);
   }
-  delete fnames;
   return 0;
 }
 
@@ -117,7 +117,7 @@ R_Ascii(char* fname) {
   float rate = (T[np - 1] - T[0]) / (np - 1);
   float Vmin, Vmax, T0;
   HGLOBAL hDat;
-  short int* Dat = nullptr;
+  std::vector<short int> Dat;
   float dV;
   T0   = T[0];
   Vmin = Vmax = V[0];
@@ -131,28 +131,27 @@ R_Ascii(char* fname) {
   }
   if (i == np) {
     dV   = (Vmax - Vmin) / 0x7FFE;
-    hDat = GlobalAlloc(GMEM_MOVEABLE, np * sizeof(int));
-    Dat  = (short int*) GlobalLock(hDat);
-    for (i = 0; i < np; ++i) Dat[i] = (V[i] - Vmin) / dV;
+    Dat.resize(np);
+    for (i = 0; i < np; ++i) Dat[i] = static_cast<short int>((V[i] - Vmin) / dV);
   }
 exit:
   GlobalUnlock(hT);
   GlobalFree(hT);
   GlobalUnlock(hV);
   GlobalFree(hV);
-  if (!Dat) return -1;
+  if (Dat.empty()) return -1;
   Gauge* G           = new Gauge(nullptr);
   G->V0              = Vmin;
   G->dV              = dV;
-  G->nRates          = 1;
-  G->Rates           = new Gauge::Piece[1];
+  //G->nRates          = 1;
+  G->Rates.resize(1);//           = new Gauge::Piece[1];
   G->Rates[0].Np     = np;
   G->Rates[0].rate   = rate;
   G->Rates[0].Tstart = T0;
   G->FilePos         = 0;
   G->count           = np;
-  G->hVal            = hDat;
-  G->val             = Dat;
+  //G->hVal            = hDat;
+  G->val=Dat;
   G->Setup();
   if (info) {
     strncpy(G->ChNum, chname, 5);

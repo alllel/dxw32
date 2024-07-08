@@ -9,15 +9,15 @@ void transform(double* val, double* freq_re, double* freq_im, int len);
 
 spectrum::spectrum(Gauge* g) : G { g } {
   long i, j, n;
-  double *A, *re, *im;
+  //double *A, *re, *im;
   n  = G->final - G->start;
   i  = 1;
   while (i < n) i <<= 1;
   N  = i;
   N  = N / 2;
-  A  = new double[N];
-  re = new double[N / 2];
-  im = new double[N / 2];
+  std::vector<double> A(N);
+  std::vector<double> re(N / 2);
+  std::vector<double> im(N / 2);
   if (N > n) {
     for (i = 0; i < N - n; ++i) A[i] = 0.0;
   } else {
@@ -26,12 +26,10 @@ spectrum::spectrum(Gauge* g) : G { g } {
   G->LockD();
   for (j = G->start; i < N; ++i, ++j) A[i] = G->Val(j);
 
-  transform(A, re, im, N);
-  delete A;
-  //Abs=LocalAlloc(LMEM_MOVEABLE,1+(N/2)*sizeof(double));
-  //Phase=LocalAlloc(LMEM_MOVEABLE,1+(N/2)*sizeof(double));
-  abs   = new double[1 + (N / 2)];
-  phase = new double[1 + (N / 2)];
+  transform(A.data(), re.data(), im.data(), N);
+  A.clear();
+  abs.resize(1 + (N / 2));
+  phase.resize(1 + (N / 2));
   LockData();
   abs[0]       = fabs(re[0]);
   abs[N / 2]   = fabs(im[0]);
@@ -49,8 +47,6 @@ spectrum::spectrum(Gauge* g) : G { g } {
   Amin = 0.0;
   Amax = AbsMax;
   SetAxis();
-  delete re;
-  delete im;
   st = 0;
   fi = N / 2;
   MDICREATESTRUCT cs;
@@ -91,13 +87,13 @@ spectrum::~spectrum() {
 LocalFree(Abs);
 LocalFree(Phase);
 */
-  delete abs;
-  delete phase;
+  //delete abs;
+  //delete phase;
 }
 
 char*
 spectrum::PicName() {
-  sprintf(buf, "%sfft%s", G->Exp->Dir, G->ChNum);
+  sprintf(buf, "%lsfft%s", G->Exp->path.c_str(), G->ChNum);
   return buf;
 }
 

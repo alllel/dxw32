@@ -6,12 +6,14 @@
 #include "twnd.h"
 #include "cutwnd.h"
 #include "pline.h"
+#include "Experiment.h"
 #include <dos.h>
 #include <ranges>
+#include <utility>
+
 
 /******************************************************************************/
 
-class RTbyGaugeIterator;
 class RT;
 struct Time {
   short hour;
@@ -24,25 +26,6 @@ struct Date {
   char day;
 };
 
-struct Experiment {
-  static int nExp;
-  int count;
-  char* Name;
-  char* Dir;
-  Experiment(char* N, char* D);
-  ~Experiment();
-  void Inc() { count++; }
-  void Dec() {
-    count--;
-    if (!count) delete this;
-  }
-  char* File(const char* ext);
-  char* IXC() { return File("IXC"); }
-  char* DAT() { return File("DAT"); }
-  int operator==(Experiment&);
-};
-// Creates Experiment after Get[Open/Save]FileName
-Experiment* SetupExp();
 
 class Gauge : public CutWnd {
 
@@ -64,20 +47,20 @@ class Gauge : public CutWnd {
   Time time;
   Date date;
   struct Piece {
-    unsigned long Np;
+    size_t Np;
     double rate;
     double Tstart;
-  }* Rates;
-  unsigned nRates;
-  Experiment* Exp;
+  };
+  std::vector<Piece> Rates;
+  std::shared_ptr<Experiment> Exp;
   // Modified parms
   double _Lower, _Upper;
   double Zero_corr;
-  unsigned long start, final;
+  size_t start, final;
   // Calculated
-  unsigned long FilePos;
-  unsigned long count;
-  long pts[2];
+  size_t FilePos;
+  size_t count;
+  size_t pts[2];
   double Ipos;
   double Ineg;
   double Itot;
@@ -90,13 +73,13 @@ class Gauge : public CutWnd {
 		Dat(){hVal=nullptr;hImp=nullptr;val=nullptr;Imp=nullptr;}
 	} *data;
 */
-  HGLOBAL hVal, hImp;
-  short int* val;
-  float* imp;
+  //HGLOBAL hVal, hImp;
+  std::vector<short int> val;
+  std::vector<float> imp;
   double Imax, Imin;
   // window specific
-  Pline *PolyP, *PolyI;
-  long Curr;
+  std::unique_ptr<Pline> PolyP, PolyI;
+  size_t Curr;
   BOOL rcValid, frcValid;
   fRECT fr;
   RECT rcGrf;
@@ -107,14 +90,14 @@ class Gauge : public CutWnd {
 
   // Methods
   // Constructors & destructors
-  Gauge(Experiment* E);
-  virtual ~Gauge();
+  explicit Gauge(std::shared_ptr<Experiment> E);
+  ~Gauge() override;
 
   // Memory Management
   void LockD();
   void UnlockD();
   void FreeD();
-  BOOL ReadD();
+  bool ReadD();
 
   void LockI();
   void UnlockI();
@@ -142,8 +125,8 @@ class Gauge : public CutWnd {
   void SetInfo();
 
   // Menu commands & window messages
-  int Write(HFILE, FILE*);
-  void AfterWrite(Experiment*, long&);
+  int Write(std::fstream& hDAT, std::fstream& hIXC);
+  void AfterWrite(std::shared_ptr<Experiment> E, size_t& Pos);
   void AcceptZero();
   void AcceptZero2();
   void WriteASCII();
@@ -156,12 +139,10 @@ class Gauge : public CutWnd {
   void Plot(HDC, DrOpt&);
 
   // Auxilary
-  void Link(Experiment* E) {
-    if (Exp) Exp->Dec();
-    Exp = E;
-    Exp->Inc();
+  void Link(std::shared_ptr<Experiment> E) {
+    Exp = std::move(E);
   }
-  char* FileName() { return Exp->DAT(); }
+  auto FileName() { return Exp->DAT(); }
   char* WinTitle();
   void SetTitle() { SetWindowText(hWnd, WinTitle()); }
   virtual char* PicName();
@@ -170,12 +151,12 @@ class Gauge : public CutWnd {
   double I2D(short int v) { return V0 + v * dV - Zero_corr; }
   short int D2I(double v) { return (short int) ((v - V0 + Zero_corr) / dV); }
 
-  double P2T(long);
-  long T2P(double);
+  double P2T(size_t x);
+  size_t T2P(double);
 
-  double Val(long i);
+  double Val(size_t i);
 
-  float& Imp(long i);
+  float& Imp(size_t i);
 
   double Pp(int i) { return Val(pts[i]); }
   double Tp(int i) { return P2T(pts[i]); }
@@ -194,13 +175,6 @@ class Gauge : public CutWnd {
 Gauge* GaugeByWnd(HWND);
 Gauge* GaugeByChNum(char*);
 
-template <typename T>
-  requires std::is_base_of_v<Window, T>
-inline auto
-WindowIterator() {
-  return std::views::transform(Window::All(), [](Window* w) { return dynamic_cast<T*>(w); })
-      | std::views::filter([](T* w) { return w != nullptr; });
-}
 
 inline auto
 GaugeIterator() { return WindowIterator<Gauge>();}

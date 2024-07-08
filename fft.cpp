@@ -1,8 +1,9 @@
 #define STRICT
 #include <windows.h>
 #include <cmath>
+#include <vector>
 
-static double* fft_cos = nullptr;
+static std::vector<double> fft_cos;
 static int FFT_len     = 0;
 
 static void
@@ -12,8 +13,7 @@ FFT_prepare(int n) {
   if (FFT_len == n) return;
   FFT_len = n;
   n       = n / 2;
-  delete fft_cos;
-  fft_cos = new double[n];
+  fft_cos.resize(n);
   PI_n    = M_PI / n;
   for (i = 0; i < n; ++i) fft_cos[i] = cos(PI_n * i);
 }
@@ -21,8 +21,7 @@ FFT_prepare(int n) {
 void
 FFT_release() {
   FFT_len = 0;
-  delete fft_cos;
-  fft_cos = nullptr;
+  fft_cos.clear();
 }
 
 // �室��� ���ᨢ - val ᮤ�ন� len �ᥫ,

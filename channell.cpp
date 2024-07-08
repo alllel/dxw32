@@ -37,10 +37,8 @@ Gauge::WinProc(Msg& M) {
       }
     case WM_SIZE:
       rcValid = FALSE;
-      if (PolyP) delete PolyP;
-      PolyP = nullptr;
-      if (PolyI) delete PolyI;
-      PolyI = nullptr;
+      PolyP.reset();
+      PolyI.reset();
       return FALSE;
     case WM_KEYDOWN:
       switch (M.wParam) {
@@ -118,9 +116,15 @@ Gauge::Command(WPARAM cmd) {
       Redraw();
       SetInfo();
       break;
-    case CM_FFT:
-      new spectrum(this);
-      break;
+    case CM_FFT: {
+      auto s = std::make_unique<spectrum>(this);
+      if (!s->hWnd) {
+        MessageBox(hFrame, "Can't create spectrum", "Can't create window", MB_OK);
+        s.reset();
+      } else {
+        s = nullptr;
+      }
+    } break;
     default:
       return FALSE;
   }
@@ -153,20 +157,19 @@ void
 Gauge::AcceptZero2() {
   if (pts[0] != -1 && pts[1] != -1) {
     double V, T0, T1, P0, P1;
-    unsigned long i;
     LockD();
     T0 = Tp(0);
     T1 = Tp(1);
     P0 = Pp(0);
     P1 = Pp(1);
-    for (i = start; i < final; ++i) {
+    for (size_t i = start; i < final; ++i) {
       V = Val(i);
       V -= (P2T(i) - T0) / (T1 - T0) * (P1 - P0) + P0;
-      *(val + i) = D2I(V);
+      val[i] = D2I(V);
     }
     ULSetup();
     UnlockD();
-    hVal     = GlobalReAlloc(hVal, 0, GMEM_MODIFY | GMEM_MOVEABLE);
+    //hVal     = GlobalReAlloc(hVal, 0, GMEM_MODIFY | GMEM_MOVEABLE);
     frcValid = FALSE;
     FreeI();
     Redraw();

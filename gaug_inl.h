@@ -5,11 +5,11 @@ GaugeByWnd(HWND hWnd) {
 
 
 inline double
-Gauge::Val(long i) {
-  return I2D(*(val + i));
+Gauge::Val(size_t i) {
+  return I2D(val[i]);
 }
 
 inline float&
-Gauge::Imp(long i) {
-  return *(imp + i);
+Gauge::Imp(size_t i) {
+  return imp[i];
 }

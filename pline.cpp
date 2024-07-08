@@ -18,19 +18,12 @@ Pline::_drop() {
 
 void
 Pline::_ensure(int newlen) {
-  alloc      = newlen;
-  POINT* tmp = pts;
-  pts        = new POINT[alloc];
-  if (len) memcpy(pts, tmp, len * sizeof(POINT));
-  if (tmp) delete tmp;
+  pts.reserve(newlen);
 }
 
 void
 Pline::OutPoint(int _x, int _y) {
-  if (len == alloc) _ensure(alloc + MAXPOLY);
-  pts[len].x = _x;
-  pts[len].y = _y;
-  ++len;
+  pts.emplace_back(_x,_y);
 }
 
 void
@@ -52,9 +45,9 @@ Pline::Polyline(HDC hdc) {
 
   i = 0;
   do {
-    l = len - i;
+    l = Len() - i;
     if (l > MAXPOLY) l = MAXPOLY;
-    ::Polyline(hdc, pts + i, l);
+    ::Polyline(hdc, &pts[i], l);
     i += l - 1;
-  } while (i < (len - 1));
+  } while (i < (Len() - 1));
 }

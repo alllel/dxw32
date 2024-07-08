@@ -116,7 +116,7 @@ DLGPROC(TShiftProc) {
               if (res == LB_ERR) continue;
               Index = (WPARAM) res;
               if (SendDlgItemMessage(hDlg, IDC_TS_LIST, LB_GETSEL, Index, 0) > 0) {
-                for (unsigned i = 0; i < G->nRates; ++i) G->Rates[i].Tstart += shift;
+                for (auto& P : G->Rates) P.Tstart += shift;
                 G->Redraw();
                 Changed = 1;
               }

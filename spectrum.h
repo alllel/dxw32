@@ -6,15 +6,14 @@ class spectrum : public CutWnd {
   Gauge*G=nullptr;
   //	HLOCAL Abs,Phase;
   long N;
-  double *abs, AbsMax;
-  double* phase;
+  std::vector<double> abs;
+  double AbsMax;
+  std::vector<double> phase;
   double FrScale;
   long st, fi;
   double Amin, Amax;
   Axis Fr, Am;
   RECT rcG;
-  //Window
-  ~spectrum() override;
   void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) override;
   BOOL Command(WPARAM cmd) override;
   BOOL WinProc(Msg& M) override;
@@ -36,6 +35,8 @@ class spectrum : public CutWnd {
     Fr.Set(st * FrScale, fi * FrScale, AS_HORIZ | 15);
     Am.Set(Amin, Amax, AS_VERT | 15);
   }
+  //Window
+  ~spectrum() override;
 };
 
 #endif

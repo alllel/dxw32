@@ -4,29 +4,26 @@
 #include "gauge.h"
 
 double
-Gauge::P2T(long x) {
-  unsigned i;
-  for (i = 0; i < nRates; ++i) {
-    if (x < Rates[i].Np) return Rates[i].Tstart + x * Rates[i].rate;
-    x -= Rates[i].Np;
+Gauge::P2T(size_t x) {
+  for (auto const& P : Rates) {
+    if (x < P.Np) return P.Tstart + x * P.rate;
+    x -= P.Np;
   }
-  i--;
-  return Rates[i].Tstart + Rates[i].Np * Rates[i].rate;
+  auto const& P = Rates.back();
+  return P.Tstart + P.Np * P.rate;
 }
 
 /******************************************************************************/
 
-long
+size_t
 Gauge::T2P(double tim) {
-  unsigned i;
-  long ret;
   long np = 0;
-  if (tim < Rates[0].Tstart) return 0;
-  for (i = 0; i < nRates; ++i) {
-    ret = (tim - Rates[i].Tstart) / Rates[i].rate;
-    if (ret < Rates[i].Np) return ret + np;
+  if (tim < Rates.front().Tstart) return 0;
+  for (auto const& P : Rates) {
+    auto local_shift = static_cast<size_t>((tim - P.Tstart) / P.rate);
+    if (local_shift < P.Np) return local_shift + np;
     else
-      np += Rates[i].Np;
+      np += P.Np;
   }
   return np - 1;
 }

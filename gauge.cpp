@@ -5,70 +5,27 @@
 #include "gauge.h"
 #include "rt.h"
 #include <cstring>
+#include <utility>
 #include <ctype.h>
 
 void trim(char* str);
 
 int Experiment::nExp = 0;
 
-Experiment*
-SetupExp() {
-  Experiment* E = nullptr;
-  if (ofn.nFileExtension) {
-    buf[ofn.nFileExtension - 1] = 0;
-    lstrcpy(ExpName, buf + ofn.nFileOffset);
-  }
-  buf[ofn.nFileOffset] = 0;
-  lstrcpy(Directory, buf);
-  cbs(Directory);
-  E = new Experiment(Directory, ExpName);
-  return E;
-}
-
-Experiment::Experiment(char* D, char* N) {
-  Name  = strdup(N);
-  Dir   = strdup(D);
-  count = 0;
-  nExp++;
-}
-
-Experiment::~Experiment() {
-  if (Name) delete Name;
-  if (Dir) delete Dir;
-  nExp--;
-}
-
-char*
-Experiment::File(const char* Ext) {
-  sprintf(fname, "%s%s.%.3s", Dir, Name, Ext);
-  return fname;
-}
-
-int
-Experiment::operator==(Experiment& E) {
-  if (stricmp(Name, E.Name)) return 0;
-  if (stricmp(Dir, E.Dir)) return 0;
-  return 1;
-}
-
-Gauge::Gauge(Experiment* e) {
+Gauge::Gauge(std::shared_ptr<Experiment> e) : Exp(std::move(e)) {
   nGauges++;
 
-  Exp = e;
-  if (Exp) Exp->Inc();
   ChNum[0]  = 0;
   Z0        = 0;
   ID[0]     = 0;
   Z1        = 0;
   unit[0]   = 0;
   Z2        = 0;
-  Rates     = nullptr;
-  nRates    = 0;
   Zero_corr = 0;
-  hVal = hImp = nullptr;
-  PolyP = PolyI = nullptr;
-  val           = nullptr;
-  imp           = nullptr;
+  //hVal = hImp = nullptr;
+  //PolyP = PolyI = nullptr;
+  //val           = nullptr;
+  //imp           = nullptr;
   count         = 0;
   Curr          = -1;
   pts[0] = pts[1] = -1;
@@ -96,82 +53,66 @@ Gauge::WinTitle() {
 char*
 Gauge::PicName() //virtual
 {
-#ifdef _WIN32
-  sprintf(buf, "%s%.4s%s", Exp->Dir, Exp->Name, ChNum);
-#else
-  int i, l1, l2, l3;
-  char chnum[6];
-  strcpy(buf, Exp->Dir);
-  l1 = strlen(buf);
-  l2 = strlen(Exp->Name);
-  l3 = 0;
-  for (i = 0; ChNum[i]; ++i) {
-    if (isalnum(ChNum[i])) {
-      chnum[l3] = ChNum[i];
-      ++l3;
-    }
-  }
-  chnum[l3] = 0;
-  if (l2 + l3 > 8) l2 = 8 - l3;
-  strncpy(buf + l1, Exp->Name, l2);
-  strcpy(buf + l1 + l2, chnum);
-#endif
+  snprintf(buf, std::size(buf), "%ls_%s", Exp->path.c_str(), ChNum);
   return buf;
 }
 
 Gauge::~Gauge() //virtual
 {
-  if (Exp) Exp->Dec();
   FreeD();
-  if (Rates) delete Rates;
-  if (PolyI) delete PolyI;
-  if (PolyP) delete PolyP;
+  //delete PolyI;
+  //delete PolyP;
 
-  TitleChanged = 1;
-  SetTitle();
+  //TitleChanged = 1;
+  //SetTitle();
 }
 
 void
 Gauge::LockD() {
-  if (!count) return;
-  long l = sizeof(int) * count;
-  int rd;
-  if (!val) {
-    if (!hVal) {
-      hVal = GlobalAlloc(GMEM_MOVEABLE | GMEM_DISCARDABLE, l);
-      rd   = 1;
-    } else if (GlobalFlags(hVal) & GMEM_DISCARDED) {
-      hVal = GlobalReAlloc(hVal, l, 0);
-      rd   = 1;
-    } else {
-      rd = 0;
-    }
-    val = (short int*) GlobalLock(hVal);
-    if (rd) {
-      if (!ReadD()) MessageBox(hFrame, "Error Reading Channell", nullptr, MB_OK);
-    }
+  if (val.empty()){
+    val.resize(count, 0);
+    ReadD();
   }
+  //  if (!count) return;
+  //  long l = sizeof(int) * count;
+  //  int rd;
+  //  if (!val) {
+  //    if (!hVal) {
+  //      hVal = GlobalAlloc(GMEM_MOVEABLE | GMEM_DISCARDABLE, l);
+  //      rd   = 1;
+  //    } else if (GlobalFlags(hVal) & GMEM_DISCARDED) {
+  //      hVal = GlobalReAlloc(hVal, l, 0);
+  //      rd   = 1;
+  //    } else {
+  //      rd = 0;
+  //    }
+  //    val = (short int*) GlobalLock(hVal);
+  //    if (rd) {
+  //      if (!ReadD()) MessageBox(hFrame, "Error Reading Channell", nullptr, MB_OK);
+  //    }
+  //  }
 }
 
 void
 Gauge::LockI() {
-  if (!count) return;
-  LockD();
-  long l = count * sizeof(float);
-  int rd;
-  if (!imp) {
-    if (!hImp) {
-      hImp = GlobalAlloc(GMEM_MOVEABLE | GMEM_DISCARDABLE, l);
-      rd   = TRUE;
-    } else if (GlobalFlags(hImp) & GMEM_DISCARDED) {
-      hImp = GlobalReAlloc(hImp, l, 0);
-      rd   = TRUE;
-    } else {
-      rd = FALSE;
-    }
-    imp = (float*) GlobalLock(hImp);
-    if (rd) CalcI();
-  }
+  if (imp.empty()) imp.resize(count, 0.0);
+  //  if (!count) return;
+  //  LockD();
+  //  long l = count * sizeof(float);
+  //  int rd;
+  //  if (!imp) {
+  //    if (!hImp) {
+  //      hImp = GlobalAlloc(GMEM_MOVEABLE | GMEM_DISCARDABLE, l);
+  //      rd   = TRUE;
+  //    } else if (GlobalFlags(hImp) & GMEM_DISCARDED) {
+  //      hImp = GlobalReAlloc(hImp, l, 0);
+  //      rd   = TRUE;
+  //    } else {
+  //      rd = FALSE;
+  //    }
+  //    imp = (float*) GlobalLock(hImp);
+  //    if (rd) CalcI();
+  //  }
 }
 
 void
@@ -203,32 +144,33 @@ Gauge::SetInfo() {
 
 void
 Gauge::UnlockD() {
-  if (val) {
-    GlobalUnlock(hVal);
-    val = nullptr;
-  }
-  UnlockI();
+//  if (val) {
+//    GlobalUnlock(hVal);
+//    val = nullptr;
+//  }
+//  UnlockI();
 }
 
 void
 Gauge::UnlockI() {
-  if (imp) {
-    GlobalUnlock(hImp);
-    imp = nullptr;
-  }
+//  if (imp) {
+//    GlobalUnlock(hImp);
+//    imp = nullptr;
+//  }
 }
 
 void
 Gauge::FreeD() {
-  UnlockD();
-  FreeI();
-  hVal = GlobalFree(hVal);
+  val.clear();
+//  UnlockD();
+//  FreeI();
+//  hVal = GlobalFree(hVal);
 }
 
 void
 Gauge::FreeI() {
-  UnlockI();
-  hImp = GlobalFree(hImp);
+//  UnlockI();
+//  hImp = GlobalFree(hImp);
 }
 
 void
@@ -285,14 +227,8 @@ Gauge::ULSetup() {
 void
 Gauge::Redraw() {
   InvalidateRect(hWnd, nullptr, TRUE);
-  if (PolyP) {
-    delete PolyP;
-    PolyP = nullptr;
-  }
-  if (PolyI) {
-    delete PolyI;
-    PolyI = nullptr;
-  }
+  PolyP.reset();
+  PolyI.reset();
   //HWND hWin;
   //Window*W;
   //RT*R;

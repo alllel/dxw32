@@ -2,6 +2,7 @@
 #define _TWND_H_
 #include <vector>
 #include <iostream>
+#include <ranges>
 
 struct Msg {
   UINT msg;
@@ -46,5 +47,12 @@ class Window {
   void Create(MDICREATESTRUCT&);
 };
 
+template <typename T>
+  requires std::is_base_of_v<Window, T>
+inline auto
+WindowIterator() {
+  return std::views::transform(Window::All(), [](Window* w) { return dynamic_cast<T*>(w); })
+      | std::views::filter([](T* w) { return w != nullptr; });
+}
 
 #endif

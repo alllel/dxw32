@@ -9,28 +9,25 @@
 #include <lzexpand.h>
 #include <commdlg.h>
 #include <sstream>
+#include <fstream>
 
 int
 OpenExp() {
-  Experiment* E;
   buf[0]        = 0;
   ofn.hwndOwner = hFrame;
   ofn.Flags     = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
   if (!GetOpenFileName(&ofn)) return 0;
-  E = SetupExp();
-  E->Inc();
+  auto E = Experiment::SetupExp(buf);
   {
     for (auto G : GaugeIterator()) 
       if (*(G->Exp) == *E) {
         MessageBox(hFrame, "Experiment is already open!", nullptr, MB_OK | MB_ICONEXCLAMATION);
-        E->Dec();
         return 0;
       }
   }
-  FILE* fp = fopen(E->IXC(), "rt");
+  auto fp = std::fstream { E->IXC(), std::ios::in };
   if (!fp) {
     MessageBox(hFrame, "Can't open file", buf, MB_OK | MB_ICONSTOP);
-    E->Dec();
     return 0;
   }
 
@@ -48,9 +45,10 @@ OpenExp() {
   long datapos = 0;
   do {
     unsigned short h, min, s, d, m, y;
-    if (!fgets(buf, 200, fp)) break;
+    fp.getline(buf, std::size(buf), '\n');
+    if (fp.gcount() == 0 || buf[0] == '#') continue;
     NG = new Gauge(E);
-    c  = sscanf(buf, "%*1d:%[0-9A-Z#]\\%16c\\%lg\\%lg\\%3c\\Time %hu.%hu.%hu \\Date %hu:%hu:%hu",
+    c  = sscanf(buf, R"(%*1d:%[0-9A-Z#]\%16c\%lg\%lg\%3c\Time %hu.%hu.%hu \Date %hu:%hu:%hu)",
                 NG->ChNum,
                 NG->ID,
                 &NG->dV,
@@ -73,24 +71,20 @@ OpenExp() {
     NG->date.month = m;
     NG->date.year  = y;
     NG->FilePos    = datapos;
-    NG->nRates     = 0;
-    long pos       = ftell(fp);
-    do {
-      ++(NG->nRates);
-      if (!fgets(buf, 200, fp)) break;
-    } while (buf[0] == '\\');
-    fseek(fp, pos, 0);
-    --(NG->nRates);
-    if (!NG->nRates) {
-      delete NG;
-      break;
-    }
-    NG->Rates = new Gauge::Piece[NG->nRates];
-    NG->count = 0;
-    for (i = 0; i < NG->nRates; ++i) {
-      fgets(buf, 200, fp);
-      if (sscanf(buf, "\\%lu\\%lE\\%lE", &NG->Rates[i].Np, &NG->Rates[i].rate, &NG->Rates[i].Tstart) != 3) break;
-      NG->count += NG->Rates[i].Np;
+    while (true) {
+      auto pos = fp.tellg();
+      fp.getline(buf, 200, '\n');
+      if (buf[0] != '\\') {
+        fp.seekg(pos);
+        break;
+      }
+      Gauge::Piece P { 0, 0, 0 };
+      if (sscanf(buf, R"(\%zu\%lE\%lE)", &P.Np, &P.rate, &P.Tstart) != 3) {
+        MessageBox(hFrame, buf, "Cant read rates line", MB_OK);
+        break;
+      }
+      NG->count += P.Np;
+      NG->Rates.push_back(P);
     }
     datapos += NG->count * sizeof(short int);
     NG->Setup();
@@ -99,9 +93,7 @@ OpenExp() {
     if (!NG->hWnd) {
       delete NG;
     }
-  } while (1);
-  E->Dec();
-  fclose(fp);
+  } while (!fp.eof());
   if (!nGauges) MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
   SetTitle();
   return 0;
