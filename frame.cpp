@@ -34,6 +34,7 @@ WINPROC(MainWin) {
           Command(cmd);
         return 0;
       }
+      break;
     case WM_DESTROY:
       PostQuitMessage(0);
       break;
