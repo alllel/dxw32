@@ -168,8 +168,7 @@ Gauge::AcceptZero2() {
       val[i] = D2I(V);
     }
     ULSetup();
-    UnlockD();
-    //hVal     = GlobalReAlloc(hVal, 0, GMEM_MODIFY | GMEM_MOVEABLE);
+
     frcValid = FALSE;
     FreeI();
     Redraw();

@@ -1,5 +1,5 @@
-#ifndef _GAUGE_H_
-#define _GAUGE_H_
+#ifndef GAUGE_H
+#define GAUGE_H
 
 /******************************************************************************/
 #include "axis.h"
@@ -16,14 +16,14 @@
 
 class RT;
 struct Time {
-  short hour;
-  short min;
-  short sec;
+  short hour=0;
+  short min=0;
+  short sec=0;
 };
 struct Date {
-  short year;
-  char month;
-  char day;
+  short year=0;
+  char month=0;
+  char day=0;
 };
 
 
@@ -32,18 +32,16 @@ class Gauge : public CutWnd {
  public:
   // IXC file date
   // Head
-  double radius;
-  int angle;
-  int number;
-  char g_type;
+  double radius = 0.0;
+  int angle     = 0;
+  int number    = 0;
+  char g_type   = '\0';
 
-  char ChNum[5];
-  char Z0;
-  char ID[16];
-  char Z1;
-  double dV, V0;
-  char unit[3];
-  char Z2;
+  char ChNum[6] = "";
+  char ID[17]   = "";
+  double dV     = 0.0;
+  double V0     = 0.0;
+  char unit[4]  = "";
   Time time;
   Date date;
   struct Piece {
@@ -54,39 +52,29 @@ class Gauge : public CutWnd {
   std::vector<Piece> Rates;
   std::shared_ptr<Experiment> Exp;
   // Modified parms
-  double _Lower, _Upper;
-  double Zero_corr;
-  size_t start, final;
+  double _Lower = 0.0, _Upper = 0.0;
+  double Zero_corr = 0.0;
+  size_t start = 0, final = 0;
   // Calculated
-  size_t FilePos;
-  size_t count;
-  size_t pts[2];
-  double Ipos;
-  double Ineg;
-  double Itot;
-  //data,Windows handles
-  /*	struct Dat {
-		enum _Dmax {MaxLen=0x4000};
-		HGLOBAL hVal,hImp;
-		int *val;
-		float *Imp;
-		Dat(){hVal=nullptr;hImp=nullptr;val=nullptr;Imp=nullptr;}
-	} *data;
-*/
-  //HGLOBAL hVal, hImp;
+  size_t FilePos = 0;
+  size_t count   = 0;
+  ssize_t pts[2] = { -1, -1 };
+  double Ipos    = 0.0;
+  double Ineg    = 0.0;
+  double Itot    = 0.0;
   std::vector<short int> val;
   std::vector<float> imp;
-  double Imax, Imin;
-  // window specific
+  double Imax = 0.0, Imin = 0.0;
+
   std::unique_ptr<Pline> PolyP, PolyI;
-  size_t Curr;
-  BOOL rcValid, frcValid;
+  ssize_t Curr = -1;
+  BOOL rcValid = false, frcValid = false;
   fRECT fr;
   RECT rcGrf;
-  BOOL drawI;
+  bool drawI = false;
   //for rtdlg
-  BOOL displayed;
-  BOOL checked;
+  bool displayed = false;
+  bool checked   = false;
 
   // Methods
   // Constructors & destructors
@@ -95,12 +83,10 @@ class Gauge : public CutWnd {
 
   // Memory Management
   void LockD();
-  void UnlockD();
   void FreeD();
   bool ReadD();
 
   void LockI();
-  void UnlockI();
   void FreeI();
   void CalcI();
 
@@ -181,4 +167,4 @@ GaugeIterator() { return WindowIterator<Gauge>();}
 
 #include "gaug_inl.h"
 
-#endif
+#endif //GAUGE_H
