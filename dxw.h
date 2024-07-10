@@ -102,7 +102,7 @@ void Info();
 void ReadInfo();
 void WriteInfo();
 void ReadHeadTitles(FILE*);
-BOOL FileExist(char* file);
+bool FileExist(char* file);
 HFILE LZOpen(char* file);
 void AlignWindow(HWND hwnd, int t, int l, int b, int r, int howy, int howx);
 inline void

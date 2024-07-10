@@ -142,7 +142,7 @@ DLGPROC(CutSize) {
   }
 }
 
-BOOL
+bool
 CutWnd::WinProc(Msg& M) {
   switch (M.msg) {
     case WM_MDIACTIVATE:

@@ -9,7 +9,7 @@
 static int CloseAll();
 static int Command(WPARAM);
 static void PrSetup();
-void Write(BOOL);
+void Write(bool);
 int ReadAscii();
 int OpenDL();
 

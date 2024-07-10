@@ -15,8 +15,8 @@ class spectrum : public CutWnd {
   Axis Fr, Am;
   RECT rcG;
   void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) override;
-  BOOL Command(WPARAM cmd) override;
-  BOOL WinProc(Msg& M) override;
+  bool Command(WPARAM cmd) override;
+  bool WinProc(Msg& M) override;
   char* PicName() override;
   //CutWnd
   int GetCutRC(RECT&) override;

@@ -63,12 +63,12 @@ WINPROC(ChildWinProc) {
   return M.ret;
 }
 
-BOOL
+bool
 Window::WinProc(Msg&) {
   return FALSE;
 }
 
-BOOL
+bool
 Window::Command(WPARAM cmd) {
   switch (cmd) {
     case CM_WSIZE:
@@ -99,7 +99,7 @@ Window::Command(WPARAM cmd) {
   return FALSE;
 }
 
-BOOL
+bool
 Window::SelFont() {
   LOGFONT lf;
   CHOOSEFONT cf;
@@ -169,7 +169,7 @@ DLGPROC(LWDlgProc) {
   }
 }
 
-BOOL
+bool
 Window::SelLW() {
   DlgLW = LineWidth;
   if (DLG(IDD_LW, LWDlgProc)) {
@@ -366,8 +366,12 @@ DLGPROC(WSProc) {
           EndDialog(hDlg, TRUE);
         case IDCANCEL:
           EndDialog(hDlg, FALSE);
+        default:
+          break;
       }
       return TRUE;
+    default:
+      break;
   }
   return FALSE;
 }

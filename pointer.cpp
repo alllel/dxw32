@@ -4,7 +4,7 @@
 #include "gauge.h"
 
 void
-Gauge::HomePointer(BOOL home) {
+Gauge::HomePointer(bool home) {
   PointerSet(home ? start : final - 1);
 }
 

@@ -32,14 +32,14 @@ SelectedGauge() {
   return GaugeByChNum(buf);
 }
 
-inline BOOL
+inline bool
 Modified(int nItem) {
-  return (BOOL) SendDlgItemMessage(hDig, nItem, EM_GETMODIFY, 0, 0);
+  return (bool) SendDlgItemMessage(hDig, nItem, EM_GETMODIFY, 0, 0);
 }
 
 //ARGSUSED
 DLGPROC(DigDlg) {
-  BOOL ret = 0;
+  bool ret = 0;
   long i, n;
   Gauge* G;
   double v, V;

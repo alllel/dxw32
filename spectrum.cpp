@@ -97,12 +97,12 @@ spectrum::PicName() {
   return buf;
 }
 
-BOOL
+bool
 spectrum::Command(WPARAM cmd) {
   return Window::Command(cmd);
 }
 
-BOOL
+bool
 spectrum::WinProc(Msg& M) {
   return CutWnd::WinProc(M);
 }

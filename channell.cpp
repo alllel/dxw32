@@ -12,9 +12,9 @@
 void MoveCutFrame(POINTS& pt);
 void CancelCut();
 
-BOOL
+bool
 Gauge::WinProc(Msg& M) {
-  BOOL rez = CutWnd::WinProc(M);
+  bool rez = CutWnd::WinProc(M);
   if (rez) return rez;
   switch (M.msg) {
     case WM_MDIACTIVATE:
@@ -78,7 +78,7 @@ Gauge::WinProc(Msg& M) {
 DLGPROC(UnitProc);
 DLGPROC(TShiftProc);
 
-BOOL
+bool
 Gauge::Command(WPARAM cmd) {
   if (Window::Command(cmd)) return TRUE;
   switch (cmd) {

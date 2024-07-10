@@ -7,24 +7,27 @@ typedef enum { Left  = 1,
                None  = 0 } state;
 class RT : public Window {
  public:
-  BOOL R_left : 1;
-  state P_st : 2;
-  BOOL T0_def : 1, T1_def : 1, R0_def : 1, R1_def : 1;
-  BOOL clr : 1;
-  double P_height, R_angle;
-  double T0, T1, R0, R1;
+  bool R_left : 1 = true;
+  state P_st : 2  = Right;
+  bool T0_def : 1 = true;
+  bool T1_def : 1 = true;
+  bool R0_def : 1 = true;
+  bool R1_def : 1 = true;
+  bool clr : 1    = true;
+  double P_height = 10.0, R_angle = 0.0;
+  double T0 = 0.0, T1 = 0.0, R0 = 0.0, R1 = 0.0;
   std::vector<Gauge*> Chns;
   bool RemoveChn(Gauge*);
   void InitDlg(HWND);
   int ReadDlg(HWND);
   void Draw(HDC, RECT&, DCtype, RECT*) override;
   char* PicName() override;
-  BOOL Command(WPARAM cmd) override;
-  BOOL WinProc(Msg& M) override;
+  bool Command(WPARAM cmd) override;
+  bool WinProc(Msg& M) override;
   void FindChannell(WORD);
   void Load(char* fname);
   void Save(char* fname);
-  RT();
+  RT() = default;
 };
 
 inline auto
@@ -37,6 +40,6 @@ RTbyGaugeIterator(Gauge* g) {
          });
 }
 
-extern RT* Rt;
+//extern RT* Rt;
 
 #endif

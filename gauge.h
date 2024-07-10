@@ -68,7 +68,7 @@ class Gauge : public CutWnd {
 
   std::unique_ptr<Pline> PolyP, PolyI;
   ssize_t Curr = -1;
-  BOOL rcValid = false, frcValid = false;
+  bool rcValid = false, frcValid = false;
   fRECT fr;
   RECT rcGrf;
   bool drawI = false;
@@ -99,7 +99,7 @@ class Gauge : public CutWnd {
   void DrawPointer(HDC);
   void SetPointer(WORD);
   void MovePointer(int);
-  void HomePointer(BOOL);
+  void HomePointer(bool);
   void PointerSet(long);
   void PointSet(int);
   void SetDigitize();
@@ -120,8 +120,8 @@ class Gauge : public CutWnd {
 
   void Redraw();
   void Draw(HDC, RECT&, DCtype, RECT*) override;
-  BOOL Command(WPARAM cmd) override;
-  BOOL WinProc(Msg& M) override;
+  bool Command(WPARAM cmd) override;
+  bool WinProc(Msg& M) override;
   void Plot(HDC, DrOpt&);
 
   // Auxilary

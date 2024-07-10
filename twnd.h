@@ -34,12 +34,12 @@ class Window {
   Window()=default;
   virtual ~Window();
   virtual void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) = 0;
-  virtual BOOL Command(WPARAM cmd);
-  virtual BOOL WinProc(Msg& M);
+  virtual bool Command(WPARAM cmd);
+  virtual bool WinProc(Msg& M);
   virtual char* PicName() = 0;
 
-  BOOL SelFont();
-  BOOL SelLW();
+  bool SelFont();
+  bool SelLW();
   void ToClp();
   void ToFile();
   void ToPrinter();

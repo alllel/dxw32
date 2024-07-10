@@ -7,7 +7,7 @@
 #include <utility>
 
 void
-Write(BOOL SaveAs) {
+Write(bool SaveAs) {
   std::shared_ptr<Experiment> E;
   if (!Experiment::nExp) return;
   if (!SaveAs && Experiment::nExp == 1) {

@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 
-static BOOL PolyCache = 0;
+static bool PolyCache = 0;
 
 inline double
 clip(double x, double min, double max) {

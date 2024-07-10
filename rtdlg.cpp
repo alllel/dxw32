@@ -8,25 +8,13 @@
 #include <algorithm>
 #include "rt.h"
 
-RT* Rt = nullptr;
+//RT* Rt = nullptr;
 
 static void CreateRT(RT* Rt);
 
-RT::RT() {
-  R_left   = TRUE;
-  P_st     = Right;
-  T0_def   = TRUE;
-  T1_def   = TRUE;
-  R0_def   = TRUE;
-  R1_def   = TRUE;
-  clr      = TRUE;
-  P_height = 10;
-  R_angle  = 0;
-}
-
 struct LinesChk {
   int line;
-  BOOL chk;
+  bool chk;
 } Lines[GMAX];
 int nLines = 0;
 
@@ -51,7 +39,7 @@ AddLine(int line) {
 }
 
 void
-CheckLine(HWND hDlg, int ind, BOOL G_chk = TRUE) {
+CheckLine(HWND hDlg, int ind, bool G_chk = TRUE) {
   SendDlgItemMessage(hDlg, IDC_RT_LINES, LB_SETSEL, TRUE, ind);
   Lines[ind].chk = TRUE;
   for (auto G : GaugeIterator()) {
@@ -251,9 +239,11 @@ RT::InitDlg(HWND hDlg) {
 }
 
 DLGPROC(RTdlg) {
+  static RT* Rt = nullptr;
   int i, j;
   switch (msg) {
     case WM_INITDIALOG: {
+      Rt = reinterpret_cast<RT*>(lParam);
       if (!Rt) Rt = new RT;
       LinesList(hDlg);
       SendDlgItemMessage(hDlg, IDC_RT_ANGL, CB_ADDSTRING, 0, (LPARAM) (LPSTR) "-45");
@@ -267,6 +257,10 @@ DLGPROC(RTdlg) {
       SetFocus(GetDlgItem(hDlg, IDC_RT_LINES));
       return FALSE;
     } //case WM_INITDIALOG
+    case WM_DESTROY: {
+      if (!Rt->hWnd) delete Rt;
+      Rt = nullptr;
+    } break;
     case WM_COMMAND: {
       WORD wNotCode = HIWORD(wParam);
       WORD idCtl    = LOWORD(wParam);
@@ -356,7 +350,11 @@ DLGPROC(RTdlg) {
         case IDOK: {
           if (!Rt->ReadDlg(hDlg)) {
             j = MessageBox(hFrame, "No channels selected!", nullptr, MB_RETRYCANCEL);
-            if (j == IDCANCEL) EndDialog(hDlg, 0);
+            if (j == IDCANCEL) {
+              if (!Rt->hWnd) delete Rt;
+              Rt = nullptr;
+              EndDialog(hDlg, 0);
+            }
           } else {
             if (!Rt->hWnd) CreateRT(Rt);
             else

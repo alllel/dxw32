@@ -11,7 +11,7 @@ class CutWnd : public Window {
   void SetCursor(POINTS&);
   void StartCut();
   virtual void FinishCut(RECT&) = 0;
-  BOOL WinProc(Msg& M) override;
+  bool WinProc(Msg& M) override;
   //virtual void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) = 0;
   void DrawCutRect(HDC);
   explicit CutWnd() =default;

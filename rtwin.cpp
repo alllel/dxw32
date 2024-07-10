@@ -13,27 +13,25 @@ RT::PicName() {
   return buf;
 }
 
-BOOL
+bool
 RT::Command(WPARAM cmd) {
   switch (cmd) {
     case CM_R_T:
-      Rt = this;
-      DLG(ID_RTD, RTdlg);
+      DLG(ID_RTD, RTdlg, reinterpret_cast<LPARAM>(this));
       return TRUE;
     default:
       return Window::Command(cmd);
   }
 }
 
-BOOL
+bool
 RT::WinProc(Msg& m) {
   switch (m.msg) {
     case WM_RBUTTONDBLCLK:
       FindChannell(HIWORD(m.lParam));
       return TRUE;
     case WM_LBUTTONDBLCLK:
-      Rt = this;
-      DLG(ID_RTD, RTdlg);
+      DLG(ID_RTD, RTdlg, reinterpret_cast<LPARAM>(this));
       return TRUE;
     default:
       return Window::WinProc(m);
