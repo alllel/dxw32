@@ -33,15 +33,6 @@ OpenExp() {
   }
 
   Gauge* NG;
-  MDICREATESTRUCT cs;
-  cs.szClass = "DXWchannel";
-  cs.hOwner  = hInst;
-  cs.x       = CW_USEDEFAULT;
-  cs.y       = CW_USEDEFAULT;
-  cs.cx      = CW_USEDEFAULT;
-  cs.cy      = CW_USEDEFAULT;
-  cs.style   = WS_MINIMIZE;
-  cs.lParam  = 0;
   long datapos = 0;
   do {
     unsigned short h, min, s, d, m, y;

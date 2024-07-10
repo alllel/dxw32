@@ -12,11 +12,26 @@ void trim(char* str);
 
 int Experiment::nExp = 0;
 
+void
+Gauge::Create() {
+  MDICREATESTRUCT cs;
+  cs.szClass = "DXWchannel";
+  cs.hOwner  = hInst;
+  cs.x       = CW_USEDEFAULT;
+  cs.y       = CW_USEDEFAULT;
+  cs.cx      = CW_USEDEFAULT;
+  cs.cy      = CW_USEDEFAULT;
+  cs.style   = WS_MINIMIZE;
+  cs.lParam  = 0;
+  Window::Create(cs);
+}
+
+
 Gauge::Gauge(std::shared_ptr<Experiment> e) : Exp(std::move(e)) {
   nGauges++;
 }
 
-Gauge*
+std::shared_ptr<Gauge>
 GaugeByChNum(char* cn) {
   for (auto G : GaugeIterator()) {
     if (!stricmp(cn, G->ChNum)) return G;

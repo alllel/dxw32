@@ -8,16 +8,17 @@
 #include <cstring>
 #include <algorithm>
 
-std::vector<Window*> Window::all_;
+std::vector<std::shared_ptr<Window>> Window::all_;
 
-Window*
+std::shared_ptr<Window>
 Window::GetWindow(HWND hWnd) {
+  if (!hWnd) return {};
   auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
   return it == all_.end() ? nullptr : *it;
 }
 
 Window::~Window() {
-  auto it = std::ranges::find(all_, this);
+  auto it = std::ranges::find_if(all_, [this](std::shared_ptr<Window> const& w) { return w.get() == this; });
   if (it != all_.end()) all_.erase(it);
 }
 
@@ -25,16 +26,25 @@ void
 Window::Create(MDICREATESTRUCT& cs) {
   hWnd = (HWND) SendMessage(hMDI, WM_MDICREATE, 0, (LPARAM) (LPMDICREATESTRUCT) &cs);
   if (hWnd) {
-    all_.push_back(this);
+    all_.emplace_back(shared_from_this());
   } else {
     MessageBox(hFrame, cs.szTitle, "Cannot Create Window", MB_OK);
+  }
+}
+
+void
+Window::Destroy() {
+  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
+  if (it != all_.end()) {
+    it->get()->hWnd = nullptr;
+    all_.erase(it);
   }
 }
 
 DLGPROC(WSProc);
 
 WINPROC(ChildWinProc) {
-  Window* W = Window::GetWindow(hWnd);
+  std::shared_ptr<Window> W = Window::GetWindow(hWnd);
   if (!W) return DefMDIChildProc(hWnd, msg, wParam, lParam);
   Msg M(msg, wParam, lParam);
   switch (msg) {
@@ -42,7 +52,7 @@ WINPROC(ChildWinProc) {
       M.ret = W->Command(wParam);
       break;
     case WM_DESTROY:
-      delete W;
+      W->Destroy();
       break;
     case WM_PAINT:
       if (!IsIconic(hWnd)) {

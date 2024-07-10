@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <ranges>
+#include <memory>
 
 struct Msg {
   UINT msg;
@@ -21,11 +22,11 @@ enum DCtype { WMF     = 0,
               Screen  = -1,
               Printer = -2 };
 
-class Window {
-  static std::vector<Window*> all_;
+class Window : public std::enable_shared_from_this<Window> {
+  static std::vector<std::shared_ptr<Window>> all_;
 
  public:
-  static auto const& All() { return all_; }
+  static auto& All() { return all_; }
   HWND hWnd = nullptr;
   int LineWidth              = 7; // in 1/10pt
   char FontName[LF_FACESIZE] = "Arial";
@@ -43,7 +44,8 @@ class Window {
   void ToClp();
   void ToFile();
   void ToPrinter();
-  static Window* GetWindow(HWND);
+  static std::shared_ptr<Window> GetWindow(HWND);
+  void Destroy();
   void Create(MDICREATESTRUCT&);
 };
 
@@ -51,8 +53,8 @@ template <typename T>
   requires std::is_base_of_v<Window, T>
 inline auto
 WindowIterator() {
-  return std::views::transform(Window::All(), [](Window* w) { return dynamic_cast<T*>(w); })
-      | std::views::filter([](T* w) { return w != nullptr; });
+  return std::views::transform(Window::All(), [](std::shared_ptr<Window>& w) { return std::dynamic_pointer_cast<T>(w); })
+      | std::views::filter([](std::shared_ptr<T> const& w) { return w.get() != nullptr; });
 }
 
 #endif

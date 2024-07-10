@@ -113,8 +113,8 @@ MoveCutFrame(POINTS& pt) {
   else if (vResize == -1)
     rcCut.bottom = pt.y;
   DrawCut();
-  Window* W  = Window::GetWindow(hCapWin);
-  auto* CW = dynamic_cast<CutWnd*>(W);
+  std::shared_ptr<Window> W  = Window::GetWindow(hCapWin);
+  auto  CW = std::dynamic_pointer_cast<CutWnd>(W);
   if (CW) CW->SetSize(hCutDlg, rcCut);
 }
 

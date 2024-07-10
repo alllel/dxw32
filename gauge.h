@@ -79,6 +79,7 @@ class Gauge : public CutWnd {
   // Methods
   // Constructors & destructors
   explicit Gauge(std::shared_ptr<Experiment> E);
+  void Create();
   ~Gauge() override;
 
   // Memory Management
@@ -158,9 +159,8 @@ class Gauge : public CutWnd {
   }
 };
 
-Gauge* GaugeByWnd(HWND);
-Gauge* GaugeByChNum(char*);
-
+std::shared_ptr<Gauge> GaugeByWnd(HWND);
+std::shared_ptr<Gauge> GaugeByChNum(char*);
 
 inline auto
 GaugeIterator() { return WindowIterator<Gauge>();}

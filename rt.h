@@ -16,8 +16,8 @@ class RT : public Window {
   bool clr : 1    = true;
   double P_height = 10.0, R_angle = 0.0;
   double T0 = 0.0, T1 = 0.0, R0 = 0.0, R1 = 0.0;
-  std::vector<Gauge*> Chns;
-  bool RemoveChn(Gauge*);
+  std::vector<HWND> Chns;
+  bool RemoveChn(const Gauge* G);
   void InitDlg(HWND);
   int ReadDlg(HWND);
   void Draw(HDC, RECT&, DCtype, RECT*) override;
@@ -28,18 +28,18 @@ class RT : public Window {
   void Load(char* fname);
   void Save(char* fname);
   RT() = default;
+  void Create();
 };
 
 inline auto
 RTIterator() { return WindowIterator<RT>(); }
 
 inline auto
-RTbyGaugeIterator(Gauge* g) {
-  return RTIterator() | std::views::filter([g](RT* rt) {
-           return std::ranges::find(rt->Chns, g) != rt->Chns.end();
+RTbyGaugeIterator(Gauge const* g) {
+  return RTIterator()
+      | std::views::filter([g](std::shared_ptr<RT> const& rt) {
+           return std::ranges::find(rt->Chns, g->hWnd) != rt->Chns.end();
          });
 }
-
-//extern RT* Rt;
 
 #endif
