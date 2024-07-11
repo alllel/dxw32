@@ -74,8 +74,8 @@ OpenExp() {
     }
     datapos += NG->count * sizeof(short int);
     NG->Setup();
-    cs.szTitle = NG->WinTitle();
-    NG->Create(cs);
+    //cs.szTitle = NG->WinTitle();
+    NG->Create();
     if (!NG->hWnd) {
       delete NG;
     }

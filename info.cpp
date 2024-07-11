@@ -14,7 +14,7 @@ DLGPROC(InfoProc) {
       hInfo = hDlg;
       hChan = (HWND) SendMessage(hMDI, WM_MDIGETACTIVE, 0, 0);
       if (hChan) {
-        Gauge* G = GaugeByWnd(hChan);
+        auto G = GaugeByWnd(hChan);
         if (G) {
           G->SetInfo();
         }
@@ -32,7 +32,7 @@ DLGPROC(InfoProc) {
           GetWindowText(hDlg, buf, 10);
           p = strchr(buf, ' ');
           if (p) *p = 0;
-          Gauge* G = GaugeByChNum(buf);
+          auto G = GaugeByChNum(buf);
           if (G) {
             GetDlgItemText(hDlg, IDC_INF_CHN, buf, 10);
             p = strchr(buf, ' ');
@@ -136,7 +136,7 @@ ReadInfo() {
     A  = (int) strtol(p, &p, 10);
     if (*p) continue;
 
-    Gauge* G = GaugeByChNum(buf);
+    auto G = GaugeByChNum(buf);
     if (!G) continue;
     G->number = N;
     G->g_type = T;

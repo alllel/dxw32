@@ -23,6 +23,7 @@ Gauge::Create() {
   cs.cy      = CW_USEDEFAULT;
   cs.style   = WS_MINIMIZE;
   cs.lParam  = 0;
+  cs.szTitle = WinTitle();
   Window::Create(cs);
 }
 

@@ -26,7 +26,7 @@ Gauge::SetDigitize() {
   }
 }
 
-static Gauge*
+static std::shared_ptr<Gauge>
 SelectedGauge() {
   GetDlgItemText(hDig, IDC_DIG_CHN, buf, 10);
   return GaugeByChNum(buf);
@@ -41,7 +41,6 @@ Modified(int nItem) {
 DLGPROC(DigDlg) {
   bool ret = 0;
   long i, n;
-  Gauge* G;
   double v, V;
   char* eptr;
   switch (msg) {
@@ -54,7 +53,7 @@ DLGPROC(DigDlg) {
       }
       HWND hChan = (HWND) SendMessage(hMDI, WM_MDIGETACTIVE, 0, 0);
       if (hChan) {
-        Gauge* G = GaugeByWnd(hChan);
+        auto G = GaugeByWnd(hChan);
         if (G) {
           G->LockD();
           if (G->Curr == -1) {
@@ -74,7 +73,7 @@ DLGPROC(DigDlg) {
           ret = 1;
         } break;
         case IDC_DIG_MIN: {
-          G = SelectedGauge();
+          auto G = SelectedGauge();
           if (G) {
             G->LockD();
             v = G->Upper();
@@ -90,7 +89,7 @@ DLGPROC(DigDlg) {
           }
         } break;
         case IDC_DIG_MAX: {
-          G = SelectedGauge();
+          auto G = SelectedGauge();
           if (G) {
             G->LockD();
             v = G->Lower();
@@ -106,7 +105,7 @@ DLGPROC(DigDlg) {
           }
         } break;
         case IDOK: {
-          G = SelectedGauge();
+          auto G = SelectedGauge();
           if (G) {
             i = -1;
             if (!Modified(IDC_DIG_PNT) && Modified(IDC_DIG_TIM)) {
@@ -128,7 +127,7 @@ DLGPROC(DigDlg) {
         } break;
         case IDC_DIG_PT1:
         case IDC_DIG_PT2: {
-          G = SelectedGauge();
+          auto G = SelectedGauge();
           if (G) {
             G->PointSet(wParam == IDC_DIG_PT1 ? 0 : 1);
           }

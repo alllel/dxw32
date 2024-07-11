@@ -11,7 +11,7 @@ Write(bool SaveAs) {
   std::shared_ptr<Experiment> E;
   if (!Experiment::nExp) return;
   if (!SaveAs && Experiment::nExp == 1) {
-    Gauge* G = *GaugeIterator().begin();
+    auto G = *GaugeIterator().begin();
     if (G) E = G->Exp;
   } else {
     FileData ofn;

@@ -59,21 +59,23 @@ RT::FindChannell(WORD y) {
   int Ph = (int) (height * (P_height / 100.0));
   int Rh = height - Ph;
   double w;
-  Gauge* rez = nullptr;
-  for (auto G : Chns) {
+  HWND rez = nullptr;
+  for (auto hG : Chns) {
+    auto G = GaugeByWnd(hG);
+    if (!G) continue;
     if (G->radius < R0 || G->radius > R1) continue;
     w        = (G->radius - R0) / (R1 - R0);
     int delt = abs((rc.bottom - bf - (int) (w * Rh)) - y);
     if (delt < mdelt) {
       mdelt = delt;
-      rez   = G;
+      rez   = hG;
     }
   }
   if (!rez) return;
-  if (IsIconic(rez->hWnd)) {
-    ShowWindow(rez->hWnd, SW_RESTORE);
+  if (IsIconic(rez)) {
+    ShowWindow(rez, SW_RESTORE);
   } else {
-    SendMessage(hMDI, WM_MDIACTIVATE, (WPARAM) rez->hWnd, 0);
+    SendMessage(hMDI, WM_MDIACTIVATE, (WPARAM) hWnd, 0);
   }
 }
 
@@ -149,7 +151,9 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
   SelectObject(hdc, fntLab);
   SelectObject(hdc, hpDef);
 
-  for (auto G : Chns) {
+  for (auto hG : Chns) {
+    auto G = GaugeByWnd(hG);
+    if (!G) continue;
     if (G->radius < R0 || G->radius > R1) continue;
     w            = (G->radius - R0) / (R1 - R0);
     dr.rcG.left  = Torg + (int) (Rang * w);

@@ -16,7 +16,7 @@ bool R_Ascii(std::string ascii_file);
 int
 ReadAscii() {
   char fnames[4096];
-  char *f;
+  char* f;
   char* s;
 
   OPENFILENAME opfn;
@@ -106,7 +106,7 @@ R_Ascii(std::string ascii_file) {
   f.close();
   EndWait();
 
-  auto np    = T.size();
+  auto np = T.size();
   if (np < 2) {
     MessageBox(hFrame, "No data", "Read Ascii", MB_OK | MB_ICONEXCLAMATION);
     return false;
@@ -129,15 +129,15 @@ R_Ascii(std::string ascii_file) {
   Dat.resize(np);
   for (int i = 0; i < np; ++i) Dat[i] = static_cast<short int>((V[i] - Vmin) / dV);
   if (Dat.empty()) return false;
-  auto* G            = new Gauge(nullptr);
-  G->V0              = Vmin;
-  G->dV              = dV;
+  auto G = std::make_shared<Gauge>(nullptr);
+  G->V0  = Vmin;
+  G->dV  = dV;
   //G->nRates          = 1;
   G->Rates.emplace_back(np, rate, T0);
-  G->FilePos         = 0;
-  G->count           = np;
+  G->FilePos = 0;
+  G->count   = np;
   //G->hVal            = hDat;
-  G->val=Dat;
+  G->val = Dat;
   G->Setup();
   if (info) {
     strncpy(G->ChNum, chname, 5);
@@ -147,25 +147,12 @@ R_Ascii(std::string ascii_file) {
   } else {
     auto name = std::filesystem::path { ascii_file }.stem().string();
     strncpy(G->ID, name.c_str(), 16);
-    if (DLG(ID_IMP, ImpDlg, (LPARAM) G) == IDCANCEL) {
-      delete G;
+    if (DLG(ID_IMP, ImpDlg, reinterpret_cast<LPARAM>(G.get())) == IDCANCEL) {
+      G.reset();
       return false;
     }
   }
-  MDICREATESTRUCT cs;
-  cs.szClass = "DXWchannel";
-  cs.hOwner  = hInst;
-  cs.x       = CW_USEDEFAULT;
-  cs.y       = CW_USEDEFAULT;
-  cs.cx      = CW_USEDEFAULT;
-  cs.cy      = CW_USEDEFAULT;
-  cs.style   = WS_MINIMIZE;
-  cs.lParam  = 0;
-  cs.szTitle = G->WinTitle();
-  G->Create(cs);
-  if (!G->hWnd) {
-    delete G;
-  }
+  G->Create();
   return true;
 }
 
