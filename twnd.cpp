@@ -10,13 +10,6 @@
 
 std::vector<std::shared_ptr<Window>> Window::all_;
 
-std::shared_ptr<Window>
-Window::GetWindow(HWND hWnd) {
-  if (!hWnd) return {};
-  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
-  return it == all_.end() ? nullptr : *it;
-}
-
 Window::~Window() {
   auto it = std::ranges::find_if(all_, [this](std::shared_ptr<Window> const& w) { return w.get() == this; });
   if (it != all_.end()) all_.erase(it);
@@ -24,6 +17,7 @@ Window::~Window() {
 
 void
 Window::Create(MDICREATESTRUCT& cs) {
+  if (hWnd) return;
   hWnd = (HWND) SendMessage(hMDI, WM_MDICREATE, 0, (LPARAM) (LPMDICREATESTRUCT) &cs);
   if (hWnd) {
     all_.emplace_back(shared_from_this());
@@ -44,7 +38,7 @@ Window::Destroy() {
 DLGPROC(WSProc);
 
 WINPROC(ChildWinProc) {
-  std::shared_ptr<Window> W = Window::GetWindow(hWnd);
+  auto W = Window::GetWindow(hWnd);
   if (!W) return DefMDIChildProc(hWnd, msg, wParam, lParam);
   Msg M(msg, wParam, lParam);
   switch (msg) {
@@ -344,8 +338,6 @@ Window::ToFile() {
     mp.ToFile(file);
   }
 }
-
-
 
 DLGPROC(WSProc) {
   unsigned w, h;

@@ -27,12 +27,12 @@ class Window : public std::enable_shared_from_this<Window> {
 
  public:
   static auto& All() { return all_; }
-  HWND hWnd = nullptr;
+  HWND hWnd                  = nullptr;
   int LineWidth              = 7; // in 1/10pt
   char FontName[LF_FACESIZE] = "Arial";
   int FontHeight             = 80; // in 1/10pt
   WORD FontType              = 0;  // as in CHOOSEFONT
-  Window()=default;
+  Window()                   = default;
   virtual ~Window();
   virtual void Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcUpd = nullptr) = 0;
   virtual bool Command(WPARAM cmd);
@@ -44,7 +44,10 @@ class Window : public std::enable_shared_from_this<Window> {
   void ToClp();
   void ToFile();
   void ToPrinter();
-  static std::shared_ptr<Window> GetWindow(HWND);
+  template <class T = Window>
+    requires std::is_base_of_v<Window, T>
+  static std::shared_ptr<T>
+      GetWindow(HWND);
   void Destroy();
   void Create(MDICREATESTRUCT&);
 };
@@ -54,7 +57,16 @@ template <typename T>
 inline auto
 WindowIterator() {
   return std::views::transform(Window::All(), [](std::shared_ptr<Window>& w) { return std::dynamic_pointer_cast<T>(w); })
-      | std::views::filter([](std::shared_ptr<T> const& w) { return w.get() != nullptr; });
+      | std::views::filter([](auto const& w) { return static_cast<bool>(w); });
+}
+
+template <class T>
+  requires std::is_base_of_v<Window, T>
+inline std::shared_ptr<T>
+Window::GetWindow(HWND hWnd) {
+  if (!hWnd) return {};
+  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
+  return it == all_.end() ? nullptr : std::dynamic_pointer_cast<T>(*it);
 }
 
 #endif

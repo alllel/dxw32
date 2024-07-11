@@ -1,6 +1,8 @@
 #ifndef RT_H
 #define RT_H
 
+struct RtDlgState;
+
 #include <algorithm>
 typedef enum { Left  = 1,
                Right = -1,
@@ -18,15 +20,15 @@ class RT : public Window {
   double T0 = 0.0, T1 = 0.0, R0 = 0.0, R1 = 0.0;
   std::vector<HWND> Chns;
   bool RemoveChn(const Gauge* G);
-  void InitDlg(HWND);
-  int ReadDlg(HWND);
+  void InitDlg(RtDlgState& dlg);
+  int ReadDlg(RtDlgState& dlg);
   void Draw(HDC, RECT&, DCtype, RECT*) override;
   char* PicName() override;
   bool Command(WPARAM cmd) override;
   bool WinProc(Msg& M) override;
   void FindChannell(WORD);
-  void Load(char* fname);
-  void Save(char* fname);
+  void Load(char* rt_fname);
+  void Save(char* rt_fname);
   RT() = default;
   void Create();
 };

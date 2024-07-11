@@ -1,6 +1,6 @@
 inline std::shared_ptr<Gauge>
 GaugeByWnd(HWND hWnd) {
-  return std::dynamic_pointer_cast<Gauge>(Window::GetWindow(hWnd));
+  return Window::GetWindow<Gauge>(hWnd);
 }
 
 inline double

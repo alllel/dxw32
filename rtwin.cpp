@@ -25,6 +25,14 @@ RT::Command(WPARAM cmd) {
 }
 
 bool
+RT::RemoveChn(const Gauge* G) {
+  auto it = std::ranges::find(Chns, G->hWnd);
+  if (it == Chns.end()) return false;
+  Chns.erase(it);
+  return true;
+}
+
+bool
 RT::WinProc(Msg& m) {
   switch (m.msg) {
     case WM_RBUTTONDBLCLK:
@@ -44,9 +52,9 @@ RT::FindChannell(WORD y) {
   if (Chns.empty()) return;
   GetClientRect(hWnd, &rc);
   int height = rc.bottom - rc.top;
-  int mdelt = height;
-  int tf = (int) (height * 0.01);
-  int bf = (int) (height * 0.1);
+  int mdelt  = height;
+  int tf     = (int) (height * 0.01);
+  int bf     = (int) (height * 0.1);
   height -= tf + bf;
   int Ph = (int) (height * (P_height / 100.0));
   int Rh = height - Ph;
@@ -54,7 +62,7 @@ RT::FindChannell(WORD y) {
   Gauge* rez = nullptr;
   for (auto G : Chns) {
     if (G->radius < R0 || G->radius > R1) continue;
-    w    = (G->radius - R0) / (R1 - R0);
+    w        = (G->radius - R0) / (R1 - R0);
     int delt = abs((rc.bottom - bf - (int) (w * Rh)) - y);
     if (delt < mdelt) {
       mdelt = delt;
@@ -141,7 +149,7 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
   SelectObject(hdc, fntLab);
   SelectObject(hdc, hpDef);
 
-  for (auto G: Chns) {
+  for (auto G : Chns) {
     if (G->radius < R0 || G->radius > R1) continue;
     w            = (G->radius - R0) / (R1 - R0);
     dr.rcG.left  = Torg + (int) (Rang * w);
