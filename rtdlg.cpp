@@ -9,6 +9,7 @@
 #include "rt.h"
 #include <sstream>
 #include <iomanip>
+#include <span>
 
 //RT* Rt = nullptr;
 struct Unit {
@@ -104,10 +105,14 @@ RtDlgState::RtDlgState(HWND hDlg, HWND hRt)
  */
 void
 RtDlgState::AddLine(int line) {
-  auto it = std::ranges::lower_bound(lines, line, {}, &std::pair<int, bool>::first);
-  if (it->first != line) {
-    lines.insert(it, std::make_pair(line, false));
-  }
+//  if (lines.empty()) {
+//    lines.emplace_back(line, false);
+//  } else {
+    auto it = std::ranges::lower_bound(lines, line, {}, &std::pair<int, bool>::first);
+    if (it == lines.end() || it->first != line) {
+      lines.insert(it, std::make_pair(line, false));
+    }
+//  }
 }
 
 /**
@@ -135,7 +140,7 @@ RtDlgState::InitDialog() {
 void
 RtDlgState::AddChn(const Gauge& G, bool chk) {
   auto it = std::ranges::find(Chns, G.hWnd);
-  if (Chns.end() != it) {
+  if (Chns.end() == it) {
     std::stringstream ss;
     ss << G.ChNum << ':' << G.angle << '-' << std::setprecision(2) << G.radius;
     auto chtxt = ss.str();
@@ -457,7 +462,7 @@ DLGPROC(RTdlg) {
     }
     case WM_COMMAND: {
       if (dlg)
-        return dlg->Command(HIWORD(wParam), LOWORD(wParam), end_dialog);
+        return dlg->Command(LOWORD(wParam), HIWORD(wParam), end_dialog);
       else
         return FALSE;
     } //case WM_COMMAND

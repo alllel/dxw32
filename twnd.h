@@ -65,7 +65,7 @@ template <class T>
 inline std::shared_ptr<T>
 Window::GetWindow(HWND hWnd) {
   if (!hWnd) return {};
-  auto it = std::ranges::find(all_, hWnd, &Window::hWnd);
+  auto it = std::find_if(all_.begin(), all_.end(), [hWnd](auto const& w) { return hWnd == w->hWnd; });
   return it == all_.end() ? nullptr : std::dynamic_pointer_cast<T>(*it);
 }
 

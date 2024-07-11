@@ -32,13 +32,13 @@ OpenExp() {
     return 0;
   }
 
-  Gauge* NG;
+  std::shared_ptr<Gauge> NG;
   long datapos = 0;
   do {
     unsigned short h, min, s, d, m, y;
     fp.getline(buf, std::size(buf), '\n');
     if (fp.gcount() == 0 || buf[0] == '#') continue;
-    NG = new Gauge(E);
+    NG = std::make_shared<Gauge>(E);
     int c = sscanf(buf, R"(%*1d:%[0-9A-Z#]\%16c\%lg\%lg\%3c\Time %hu.%hu.%hu \Date %hu:%hu:%hu)",
                    NG->ChNum,
                    NG->ID,
@@ -52,7 +52,6 @@ OpenExp() {
       msg << "Error reading channel from line: \n|" << buf << "|\n"
           << " Only " << c << " values decoded (of 11)";
       MessageBox(hFrame, msg.str().c_str(), "Can't read channel", MB_OK | MB_ICONSTOP);
-      delete NG;
       break;
     }
     NG->time.hour  = h;
@@ -76,9 +75,6 @@ OpenExp() {
     NG->Setup();
     //cs.szTitle = NG->WinTitle();
     NG->Create();
-    if (!NG->hWnd) {
-      delete NG;
-    }
   } while (!fp.eof());
   if (!nGauges) MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
   SetTitle();
