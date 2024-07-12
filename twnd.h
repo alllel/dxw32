@@ -4,6 +4,7 @@
 #include <iostream>
 #include <ranges>
 #include <memory>
+#include <algorithm>
 
 struct Msg {
   UINT msg;

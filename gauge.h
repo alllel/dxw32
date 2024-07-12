@@ -78,6 +78,7 @@ class Gauge : public CutWnd {
 
   // Methods
   // Constructors & destructors
+  static int nGauges;
   explicit Gauge(std::shared_ptr<Experiment> E);
   void Create();
   ~Gauge() override;

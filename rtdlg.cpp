@@ -40,7 +40,7 @@ struct RtDlgState {
   std::vector<std::pair<int, bool>> lines;       ///< list of items in TDC_RT_LINES listbox
   void AddLine(int line);                        ///< add a RT line to array and to the listbox
   void AddChn(Gauge const&, bool chk = false);   ///< add a channel into array and to the listbox
-  void RemoveChn(Gauge const&);                  ///< remove channel from listbox and the array
+  void RemoveChn(size_t idx);                    ///< remove channel from listbox and the array
   void InitDialog();                             ///< Fill dialog elements with values
   void SelChangeLine(int l_idx, bool chk_state); ///< respond to select/unselect of line in DlgBox
   void CheckLine(int l_idx, bool chn_state);     ///< select line and add chalnnels
@@ -105,14 +105,14 @@ RtDlgState::RtDlgState(HWND hDlg, HWND hRt)
  */
 void
 RtDlgState::AddLine(int line) {
-//  if (lines.empty()) {
-//    lines.emplace_back(line, false);
-//  } else {
-    auto it = std::ranges::lower_bound(lines, line, {}, &std::pair<int, bool>::first);
-    if (it == lines.end() || it->first != line) {
-      lines.insert(it, std::make_pair(line, false));
-    }
-//  }
+  //  if (lines.empty()) {
+  //    lines.emplace_back(line, false);
+  //  } else {
+  auto it = std::ranges::lower_bound(lines, line, {}, &std::pair<int, bool>::first);
+  if (it == lines.end() || it->first != line) {
+    lines.insert(it, std::make_pair(line, false));
+  }
+  //  }
 }
 
 /**
@@ -140,32 +140,27 @@ RtDlgState::InitDialog() {
 void
 RtDlgState::AddChn(const Gauge& G, bool chk) {
   auto it = std::ranges::find(Chns, G.hWnd);
-  if (Chns.end() == it) {
+  long pos;
+  if (it == Chns.end()) {
     std::stringstream ss;
     ss << G.ChNum << ':' << G.angle << '-' << std::setprecision(2) << G.radius;
     auto chtxt = ss.str();
-    auto idx   = SendItemMessage(IDC_RT_CHNS, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(chtxt.c_str()));
-    if (Chns.size() != idx) {
-      MessageBox(hFrame, chtxt.c_str(), "Already in the list?", MB_OK | MB_ICONEXCLAMATION);
-    }
-    Chns.emplace_back(G.hWnd);
-    it = Chns.end();
-    it--;
+    pos        = SendItemMessage(IDC_RT_CHNS, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(chtxt.c_str()));
+    Chns.insert(std::next(Chns.begin(), pos), G.hWnd);
+  } else {
+    pos = std::distance(Chns.begin(), it);
   }
-  SendItemMessage(IDC_RT_CHNS, LB_SETSEL, chk, it - Chns.begin());
+  SendItemMessage(IDC_RT_CHNS, LB_SETSEL, chk, pos);
 }
 
 /**
  * Remove a channel from both internal list and the list box
- * @param G
+ * @param idx
  */
 void
-RtDlgState::RemoveChn(const Gauge& G) {
-  auto it = std::ranges::find(Chns, G.hWnd);
-  if (it == Chns.end()) return;
-  auto pos = std::distance(it, Chns.begin());
-  auto len = SendItemMessage(IDC_RT_CHNS, LB_DELETESTRING, static_cast<WPARAM>(pos), 0);
-  Chns.erase(it);
+RtDlgState::RemoveChn(size_t idx) {
+  auto len = SendItemMessage(IDC_RT_CHNS, LB_DELETESTRING, static_cast<WPARAM>(idx), 0);
+  Chns.erase(std::next(Chns.begin(), idx));
   if (Chns.size() != len) {
     MessageBox(hFrame, "Internal error ", "List of channels", MB_OK | MB_ICONEXCLAMATION);
   }
@@ -184,12 +179,7 @@ RtDlgState::SelChangeLine(int l_idx, bool chk_state) {
   if (chk_state) { // Line is selected; Add all channels into listbox
     CheckLine(l_idx, true);
   } else { //line is deselected
-    for (auto hG : Chns) {
-      auto G = GaugeByWnd(hG);
-      if (G && G->angle == line) {
-        RemoveChn(*G);
-      }
-    }
+    UncheckLine(l_idx);
   }
   chk = chk_state;
   //lines[l_idx].second = chk_state;
@@ -207,10 +197,12 @@ RtDlgState::CheckLine(int l_idx, bool chn_state) {
 
 void
 RtDlgState::UncheckLine(int l_idx) {
-  for (auto hG : Chns) {
-    auto G = GaugeByWnd(hG);
+  for (size_t idx = 0; idx < Chns.size();) {
+    auto G = GaugeByWnd(Chns[idx]);
     if (G && G->angle == lines[l_idx].first) {
-      RemoveChn(*G);
+      RemoveChn(idx);
+    } else {
+      ++idx;
     }
   }
   SendItemMessage(IDC_RT_LINES, LB_SETSEL, 0, l_idx);
@@ -439,14 +431,20 @@ RT::InitDlg(RtDlgState& dlg) {
       continue;
     }
     dlg.CheckLine(it - dlg.lines.begin(), false);
-    dlg.AddChn(*G, true);
+  }
+  for (auto hG : Chns) {
+    auto G = GaugeByWnd(hG);
+    if (G) dlg.AddChn(*G, true);
   }
 }
 
 DLGPROC(RTdlg) {
   static std::shared_ptr<RtDlgState> dlg {};
   auto end_dialog = [](bool Ok) {
-    if (Ok) dlg->Rt->Create();
+    if (Ok) {
+      dlg->Rt->Create();
+      InvalidateRect(dlg->Rt->hWnd, nullptr, TRUE);
+    }
     EndDialog(dlg->hDlg, static_cast<INT_PTR>(Ok));
     dlg.reset();
   };

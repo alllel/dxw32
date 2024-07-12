@@ -47,6 +47,7 @@ WINPROC(ChildWinProc) {
       break;
     case WM_DESTROY:
       W->Destroy();
+      W.reset();
       break;
     case WM_PAINT:
       if (!IsIconic(hWnd)) {
@@ -64,6 +65,7 @@ WINPROC(ChildWinProc) {
       if (!W->WinProc(M))
         M.ret = DefMDIChildProc(hWnd, msg, wParam, lParam);
   }
+  SetTitle();
   return M.ret;
 }
 

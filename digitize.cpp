@@ -14,9 +14,9 @@ Gauge::SetDigitize() {
     //	SetDlgItemText(hDig,IDC_DIG_CHN,ChNum);
     sprintf(buf, "%ld", Curr);
     SetDlgItemText(hDig, IDC_DIG_PNT, buf);
-    sprintf(buf, "%lg", P2T(Curr));
+    sprintf(buf, "%.8lg", P2T(Curr));
     SetDlgItemText(hDig, IDC_DIG_TIM, buf);
-    sprintf(buf, "%lg", Val(Curr));
+    sprintf(buf, "%.8lg", Val(Curr));
     SetDlgItemText(hDig, IDC_DIG_VAL, buf);
   } else {
     SendDlgItemMessage(hDig, IDC_DIG_CHN, CB_SETCURSEL, -1, 0);
@@ -144,7 +144,7 @@ DLGPROC(DigDlg) {
 void
 Digitize() {
   if (!hDig) {
-    if (nGauges) {
+    if (Gauge::nGauges) {
       CreateDialog(hInst, MAKEINTRESOURCE(ID_DIGIT), hFrame, DigDlg /*hDigPr*/);
       AlignWindow(hDig, 0, 0, GetSystemMetrics(SM_CYSCREEN), GetSystemMetrics(SM_CXSCREEN), -1, 1);
     }

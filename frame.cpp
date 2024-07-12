@@ -41,6 +41,7 @@ WINPROC(MainWin) {
     default:
       break;
   }
+  SetTitle();
   return DefFrameProc(hWnd, hMDI, msg, wParam, lParam);
 }
 
@@ -178,10 +179,10 @@ Command(WPARAM cmd) {
       WinHelp(hFrame, "dxw.hlp", HELP_CONTENTS, 0);
       break;
     case CM_TABLE:
-      if (nGauges) WriteTable();
+      if (Gauge::nGauges) WriteTable();
       break;
     case CM_R_T:
-      if (nGauges) DLG(ID_RTD, RTdlg);
+      if (Gauge::nGauges) DLG(ID_RTD, RTdlg);
       break;
     case CM_COMPR:
       Compress();

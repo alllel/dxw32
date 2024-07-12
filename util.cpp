@@ -77,14 +77,14 @@ OFN::OFN() {
   nMaxCustFilter    = 0;
   nFilterIndex      = 1;
   lpstrFile         = nullptr;
-  nMaxFile          = NULL;
+  nMaxFile          = 0;
   lpstrFileTitle    = nullptr;
   nMaxFileTitle     = 0;
   lpstrInitialDir   = nullptr;
   lpstrTitle        = nullptr;
   Flags             = OFN_HIDEREADONLY;
   lpstrDefExt       = nullptr;
-  lCustData         = NULL;
+  lCustData         = 0;
   lpfnHook          = nullptr;
   lpTemplateName    = nullptr;
 }

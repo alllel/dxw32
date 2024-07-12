@@ -60,7 +60,7 @@ DLGPROC(InfoProc) {
 void
 Info() {
   if (!hInfo) {
-    if (nGauges) {
+    if (Gauge::nGauges) {
       CreateDialog(hInst, MAKEINTRESOURCE(ID_INFO), hFrame, InfoProc);
       AlignWindow(hInfo, 0, 0, GetSystemMetrics(SM_CYSCREEN), GetSystemMetrics(SM_CXSCREEN), 1, 1);
     }

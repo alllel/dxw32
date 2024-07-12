@@ -11,6 +11,7 @@
 void trim(char* str);
 
 int Experiment::nExp = 0;
+int Gauge::nGauges   = 0;
 
 void
 Gauge::Create() {
@@ -26,7 +27,6 @@ Gauge::Create() {
   cs.szTitle = WinTitle();
   Window::Create(cs);
 }
-
 
 Gauge::Gauge(std::shared_ptr<Experiment> e) : Exp(std::move(e)) {
   nGauges++;
@@ -54,11 +54,11 @@ Gauge::PicName() //virtual
   return buf;
 }
 
-Gauge::~Gauge() = default;
+Gauge::~Gauge() { --nGauges; };
 
 void
 Gauge::LockD() {
-  if (val.empty()){
+  if (val.empty()) {
     val.resize(count, 0);
     ReadD();
   }

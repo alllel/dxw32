@@ -13,14 +13,14 @@
 
 int
 OpenExp() {
-  buf[0]        = 0;
+  buf[0] = 0;
   FileData ofn;
   ofn.hwndOwner = hFrame;
   ofn.Flags     = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
   if (!GetOpenFileName(&ofn)) return 0;
   auto E = Experiment::SetupExp(buf);
   {
-    for (auto G : GaugeIterator()) 
+    for (auto G : GaugeIterator())
       if (*(G->Exp) == *E) {
         MessageBox(hFrame, "Experiment is already open!", nullptr, MB_OK | MB_ICONEXCLAMATION);
         return 0;
@@ -30,6 +30,13 @@ OpenExp() {
   if (!fp) {
     MessageBox(hFrame, "Can't open file", buf, MB_OK | MB_ICONSTOP);
     return 0;
+  } else {
+    auto dir = E->IXC().parent_path().string();
+    std::strncpy(Directory, dir.c_str(), std::size(Directory));
+    auto name = E->IXC().filename().string();
+    std::strncpy(ExpName, name.c_str(), std::size(ExpName));
+    recent.insert(recent.begin(), E->IXC().string());
+    if (recent.size() > 9) recent.resize(9);
   }
 
   std::shared_ptr<Gauge> NG;
@@ -38,7 +45,7 @@ OpenExp() {
     unsigned short h, min, s, d, m, y;
     fp.getline(buf, std::size(buf), '\n');
     if (fp.gcount() == 0 || buf[0] == '#') continue;
-    NG = std::make_shared<Gauge>(E);
+    NG    = std::make_shared<Gauge>(E);
     int c = sscanf(buf, R"(%*1d:%[0-9A-Z#]\%16c\%lg\%lg\%3c\Time %hu.%hu.%hu \Date %hu:%hu:%hu)",
                    NG->ChNum,
                    NG->ID,
@@ -46,7 +53,7 @@ OpenExp() {
                    &NG->V0,
                    NG->unit,
                    &h, &min, &s,
-                &d, &m, &y);
+                   &d, &m, &y);
     if (c != 11) {
       std::stringstream msg;
       msg << "Error reading channel from line: \n|" << buf << "|\n"
@@ -76,16 +83,25 @@ OpenExp() {
     //cs.szTitle = NG->WinTitle();
     NG->Create();
   } while (!fp.eof());
-  if (!nGauges) MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
+  if (!Gauge::nGauges) MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
   SetTitle();
   return 0;
 }
 
 void
 SetTitle() {
+  static int nE = 0, nG = 0, ch;
+  if (nE == Experiment::nExp && nG == Gauge::nGauges && ch == Changed) return;
+  else {
+    nE = Experiment::nExp;
+    nG = Gauge::nGauges;
+    ch = Changed;
+  }
   switch (Experiment::nExp) {
     case 1: {
-      sprintf(buf, "DXW:%s (%d channels)", ExpName, nGauges);
+      auto name = (*GaugeIterator().begin())->Exp->IXC().filename().string();
+      std::strncpy(ExpName, name.c_str(), std::size(ExpName));
+      sprintf(buf, "DXW:%s (%d channels)%s", ExpName, Gauge::nGauges, (Changed ? " modified" : ""));
       SetWindowText(hFrame, buf);
     } break;
     case 0: {
@@ -93,7 +109,7 @@ SetTitle() {
       SetWindowText(hFrame, "DX for Windows");
     } break;
     default: {
-      sprintf(buf, "DXW:%d exp (%d channels)", Experiment::nExp, nGauges);
+      sprintf(buf, "DXW:%d exp (%d channels)", Experiment::nExp, Gauge::nGauges);
       SetWindowText(hFrame, buf);
     } break;
   }

@@ -5,6 +5,8 @@
 #include <commdlg.h>
 #include <cstdio>
 #include <memory.h>
+#include <vector>
+#include <string>
 
 #define WINPROC(name) LRESULT CALLBACK name( \
     HWND hWnd,                               \
@@ -18,8 +20,9 @@
     WPARAM wParam,                        \
     LPARAM lParam)
 
-extern char buf[256];
-extern char fname[260];
+extern char buf[MAX_PATH];
+extern char fname[MAX_PATH+4];
+extern std::vector<std::string> recent;
 extern HINSTANCE hInst;
 extern HWND hFrame, hMDI;
 extern HGLOBAL hDevMode, hDevNames;
@@ -33,7 +36,6 @@ extern double TICKS;
 
 #define GMAX 100
 
-extern int nGauges;
 extern int Changed;
 extern int TitleChanged;
 
@@ -75,11 +77,7 @@ char* Uscale(int, const char*, const char*);
 #define FIRST_CMD 20000
 #define FIRST_WND 300
 
-extern char Directory[];
-extern char MainDir[];
-extern char HeadDir[];
-extern char CalDir[];
-extern char DataDir[];
+extern char Directory[81];
 struct OFN : OPENFILENAME {
   OFN();
 };

@@ -45,7 +45,7 @@ DLGPROC(UnitProc) {
     case WM_COMMAND:
       switch (wParam) {
         case IDC_UN_ALL: {
-          SendDlgItemMessage(hDlg, IDC_UN_LIST, LB_SELITEMRANGE, TRUE, MAKELPARAM(0, nGauges - 1));
+          SendDlgItemMessage(hDlg, IDC_UN_LIST, LB_SELITEMRANGE, TRUE, MAKELPARAM(0, Gauge::nGauges - 1));
         } break;
         case IDOK: {
           double nr = 1, or_ = 1, ns = 0, os = 0;
@@ -105,7 +105,7 @@ DLGPROC(TShiftProc) {
     case WM_COMMAND:
       switch (wParam) {
         case IDC_TS_ALL: {
-          SendDlgItemMessage(hDlg, IDC_TS_LIST, LB_SELITEMRANGE, TRUE, MAKELPARAM(0, nGauges - 1));
+          SendDlgItemMessage(hDlg, IDC_TS_LIST, LB_SELITEMRANGE, TRUE, MAKELPARAM(0, Gauge::nGauges - 1));
         } break;
         case IDOK: {
           double shift = 0;

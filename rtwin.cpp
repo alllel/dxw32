@@ -39,7 +39,7 @@ RT::WinProc(Msg& m) {
       FindChannell(HIWORD(m.lParam));
       return TRUE;
     case WM_LBUTTONDBLCLK:
-      DLG(ID_RTD, RTdlg, reinterpret_cast<LPARAM>(this));
+      DLG(ID_RTD, RTdlg, reinterpret_cast<LPARAM>(hWnd));
       return TRUE;
     default:
       return Window::WinProc(m);
@@ -88,7 +88,7 @@ static COLORREF RTColors[] = {
   RGB(255, 0, 255),
   RGB(0, 255, 255),
 };
-#define NCLR (sizeof(RTColors) / sizeof(COLORREF))
+constexpr auto NCLR=std::size(RTColors);
 
 void
 RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {

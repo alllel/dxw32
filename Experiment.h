@@ -11,8 +11,8 @@
 struct Experiment : std::enable_shared_from_this<Experiment> {
   static int nExp;
   std::filesystem::path path;
-  explicit Experiment(std::filesystem::path p) : path(std::move(p)) {};
-  ~Experiment() = default;
+  explicit Experiment(std::filesystem::path p) noexcept : path(std::move(p)) { ++nExp; };
+  ~Experiment() noexcept { --nExp; };
 
   std::filesystem::path const& IXC() const { return path; }
   std::filesystem::path File(std::string_view ext) const {
