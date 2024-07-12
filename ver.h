@@ -1,2 +1,2 @@
-#define VER_MAJOR 2
-#define VER_MINOR 44
+#define VER_MAJOR 3
+#define VER_MINOR 0
