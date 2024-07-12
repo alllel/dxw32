@@ -108,10 +108,15 @@ SetTitle() {
   }
   switch (Experiment::nExp) {
     case 1: {
-      auto name = (*GaugeIterator().begin())->Exp->IXC().filename().string();
-      std::strncpy(ExpName, name.c_str(), std::size(ExpName));
-      sprintf(buf, "DXW:%s (%d channels)%s", ExpName, Gauge::nGauges, (Changed ? " modified" : ""));
-      SetWindowText(hFrame, buf);
+      if (auto E = FirstExp()) {
+        std::string name = E->IXC().filename().string();
+        std::strncpy(ExpName, name.c_str(), std::size(ExpName));
+        sprintf(buf, "DXW:%s (%d channels)%s", ExpName, Gauge::nGauges, (Changed ? " modified" : ""));
+        SetWindowText(hFrame, buf);
+      } else {
+        nE = 0;
+        return;
+      }
     } break;
     case 0: {
       Changed = 0;
@@ -122,5 +127,4 @@ SetTitle() {
       SetWindowText(hFrame, buf);
     } break;
   }
-  TitleChanged = 0;
 }

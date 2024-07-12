@@ -12,7 +12,7 @@ Gauge::SetDigitize() {
     i = (int) SendDlgItemMessage(hDig, IDC_DIG_CHN, CB_FINDSTRING, -1, (LPARAM) (LPSTR) ChNum);
     SendDlgItemMessage(hDig, IDC_DIG_CHN, CB_SETCURSEL, i, 0);
     //	SetDlgItemText(hDig,IDC_DIG_CHN,ChNum);
-    sprintf(buf, "%ld", Curr);
+    sprintf(buf, "%zd", Curr);
     SetDlgItemText(hDig, IDC_DIG_PNT, buf);
     sprintf(buf, "%.8lg", P2T(Curr));
     SetDlgItemText(hDig, IDC_DIG_TIM, buf);
@@ -39,7 +39,7 @@ Modified(int nItem) {
 
 //ARGSUSED
 DLGPROC(DigDlg) {
-  bool ret = 0;
+  bool ret = false;
   long i, n;
   double v, V;
   char* eptr;
@@ -64,13 +64,13 @@ DLGPROC(DigDlg) {
           G->SetDigitize();
         }
       }
-      ret = 1;
+      ret = true;
     } break;
     case WM_COMMAND:
       switch (wParam) {
         case IDCANCEL: {
           DestroyWindow(hDlg);
-          ret = 1;
+          ret = true;
         } break;
         case IDC_DIG_MIN: {
           auto G = SelectedGauge();
@@ -126,16 +126,21 @@ DLGPROC(DigDlg) {
           }
         } break;
         case IDC_DIG_PT1:
+          [[fallthrough]];
         case IDC_DIG_PT2: {
           auto G = SelectedGauge();
           if (G) {
             G->PointSet(wParam == IDC_DIG_PT1 ? 0 : 1);
           }
         } break;
+        default:
+          break;
       }
       break;
     case WM_DESTROY:
       hDig = nullptr;
+      break;
+    default:
       break;
   }
   return ret;

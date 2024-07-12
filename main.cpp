@@ -114,25 +114,19 @@ Init(int cmdshow) {
                       hFrame, 0, hInst, &cs);
   if (!hMDI) return FALSE;
   GetDirs();
-  //ChDir(MainDir);
   hAccel = LoadAccelerators(hInst, MAKEINTRESOURCE(ID_MENU));
   hpPnt  = CreatePen(PS_SOLID, 0, RGB(0, 255, 255));
   hpPts  = CreatePen(PS_SOLID, 0, RGB(255, 255, 0));
   hpCut  = CreatePen(PS_DOT, 0, RGB(0, 0, 0));
   hpImp  = CreatePen(PS_SOLID, 0, RGB(0, 255, 0));
   hpDef  = (HPEN) GetStockObject(BLACK_PEN);
-  //Not necessary because smart callbacks used
-  //hDigPr=MakeProcInstance((FARPROC)DigDlg,hInst);
   hbrNull  = (HBRUSH) GetStockObject(NULL_BRUSH);
-  hbrBlack = (HBRUSH) GetStockObject(BLACK_BRUSH);
   hbrGray  = (HBRUSH) GetStockObject(GRAY_BRUSH);
   return TRUE;
 }
 
 void
 ShutDown() {
-  //Not necessary because smart callbacks used
-  //FreeProcInstance(hDigPr);
   SaveDirs();
   DeleteObject(hpPnt);
   DeleteObject(hpPts);

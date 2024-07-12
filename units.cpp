@@ -62,13 +62,13 @@ DLGPROC(UnitProc) {
                 G->Zero_corr = 0;
                 G->dV        = G->dV * nr / or_;
                 G->V0        = (G->V0 - os) * nr / or_ + ns;
-                if (G->_Upper != G->_Lower) {
-                  G->_Lower = (G->_Lower - os) * nr / or_ + ns;
-                  G->_Upper = (G->_Upper - os) * nr / or_ + ns;
-                  if (G->_Lower > G->_Upper) {
-                    double tmp = G->_Lower;
-                    G->_Lower  = G->_Upper;
-                    G->_Upper  = tmp;
+                if (G->m_Upper != G->m_Lower) {
+                  G->m_Lower = (G->m_Lower - os) * nr / or_ + ns;
+                  G->m_Upper = (G->m_Upper - os) * nr / or_ + ns;
+                  if (G->m_Lower > G->m_Upper) {
+                    double tmp = G->m_Lower;
+                    G->m_Lower = G->m_Upper;
+                    G->m_Upper = tmp;
                   }
                 }
                 GetDlgItemText(hDlg, IDC_UN_N_UN, G->unit, 4);

@@ -54,7 +54,7 @@ Line(HDC hdc, int l1, int w1, int l2, int w2) {
 }
 
 int
-Axis::Draw(HDC hdc, const RECT& rc, int tcklen) {
+Axis::Draw(HDC hdc, const RECT& rc, int tcklen) const {
   int start, end, height, shift, i, ta, nfactor, decplace;
   double w, factor;
   if (style & AS_NOAXIS) return 0;

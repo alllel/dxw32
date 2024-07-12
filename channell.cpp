@@ -4,8 +4,6 @@
 #include "gauge.h"
 #include "rt.h"
 #include <commdlg.h>
-#include <cmath>
-#include <cstdlib>
 #include <cstring>
 #include "spectrum.h"
 
@@ -117,12 +115,9 @@ Gauge::Command(WPARAM cmd) {
       SetInfo();
       break;
     case CM_FFT: {
-      auto s = std::make_unique<spectrum>(this);
+      auto s = std::make_shared<spectrum>(this);
       if (!s->hWnd) {
         MessageBox(hFrame, "Can't create spectrum", "Can't create window", MB_OK);
-        s.reset();
-      } else {
-        s = nullptr;
       }
     } break;
     default:
@@ -144,8 +139,8 @@ Gauge::AcceptZero() {
     for (i = F; i < T; ++i) AVE += Val(i);
     AVE /= T - F;
     Zero_corr += AVE;
-    _Lower -= AVE;
-    _Upper -= AVE;
+    m_Lower -= AVE;
+    m_Upper -= AVE;
     frcValid = FALSE;
     FreeI();
     Redraw();

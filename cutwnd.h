@@ -1,5 +1,5 @@
-#ifndef _CUTWND_H
-#define _CUTWND_H
+#ifndef CUTWND_H
+#define CUTWND_H
 
 #include <windows.h>
 #include "twnd.h"
@@ -17,4 +17,4 @@ class CutWnd : public Window {
   explicit CutWnd() =default;
 };
 
-#endif
+#endif//CUTWND_H

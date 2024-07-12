@@ -114,7 +114,7 @@ Gauge::Setup() {
   start     = 0;
   final     = count;
   Zero_corr = 0;
-  _Upper = _Lower = 0;
+  m_Upper = m_Lower = 0;
   char *p, *t;
   p = strchr(ID, 'G');
   if (p) {
@@ -154,8 +154,8 @@ Gauge::ULSetup() {
       Max = V;
     }
   }
-  _Upper = Max;
-  _Lower = Min;
+  m_Upper = Max;
+  m_Lower = Min;
   EndWait();
 }
 

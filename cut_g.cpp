@@ -1,9 +1,7 @@
 #define STRICT
 #include <windows.h>
 #include "dxw.h"
-#include "cutwnd.h"
 #include "gauge.h"
-#include <cstdlib>
 
 void
 Gauge::FinishCut(RECT& rcCut) {
@@ -16,8 +14,8 @@ Gauge::FinishCut(RECT& rcCut) {
     if (final > count) final = count;
   }
   if (rcCut.bottom > rcCut.top) {
-    _Lower = scr2y(rcCut.bottom, fr, rcGrf);
-    _Upper = scr2y(rcCut.top, fr, rcGrf);
+    m_Lower = scr2y(rcCut.bottom, fr, rcGrf);
+    m_Upper = scr2y(rcCut.top, fr, rcGrf);
   }
   if (Curr < start || Curr >= final) Curr = -1;
   Changed = 1;

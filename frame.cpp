@@ -110,9 +110,10 @@ Command(WPARAM cmd) {
   switch (cmd) {
     case CM_EXPINFO:
       if (Experiment::nExp == 1) {
-        auto G = *GaugeIterator().begin();
-        sprintf(buf, "notepad.exe %s", G->Exp->File("DSC").string().c_str());
-        WinExec(buf, SW_RESTORE);
+        if(auto E = FirstExp()){
+          sprintf(buf, "notepad.exe %s", E->File("DSC").string().c_str());
+          WinExec(buf, SW_RESTORE);
+        }
       }
       break;
     case CM_EXIT:

@@ -1,6 +1,5 @@
 #define STRICT
 #include <windows.h>
-#include <algorithm>
 #include "dxw.h"
 
 char buf[MAX_PATH];
@@ -8,24 +7,20 @@ char fname[MAX_PATH + 4];
 Recent recent;
 char Directory[81];
 char ExpName[20];
-double TICKS     = 25;
 int Changed      = 0;
-int TitleChanged = 0;
 
 //Digitize window
 HWND hDig  = nullptr;
 HWND hInfo = nullptr;
-//Not necessary because smart callbacks used
-//FARPROC hDigPr=nullptr;
 
 //GDI objects
-HBRUSH hbrNull = nullptr, hbrBlack = nullptr, hbrGray = nullptr;
+HBRUSH hbrNull = nullptr, hbrGray = nullptr;
 HPEN hpPnt = nullptr, hpPts = nullptr, hpImp = nullptr, hpDef = nullptr;
 
 void
 GetDirs() {
   GetPrivateProfileString("Krenz", "Directory", ".", Directory, std::size(Directory), "dxw.ini");
-  unsigned N   = GetPrivateProfileInt("Recent", "N", 0, "dxw.ini");
+  int N   = GetPrivateProfileInt("Recent", "N", 0, "dxw.ini");
   char cidx[4] = { "C" };
   for (int i = N-1; i >=0; --i) {
     itoa(i, cidx + 1, 10);
@@ -39,8 +34,8 @@ GetDirs() {
 void
 SaveDirs() {
   WritePrivateProfileString("Krenz", "Directory", Directory, "dxw.ini");
-  int N = recent.size();
-  WritePrivateProfileStringA("Recent", "N", itoa(N, buf, 10), "dxw.ini");
+  int N = static_cast<int>(recent.size());
+  WritePrivateProfileString("Recent", "N", itoa(N, buf, 10), "dxw.ini");
   char cidx[4] = { "C" };
   for (int i = 0; i < N; ++i) {
     itoa(i, cidx + 1, 10);

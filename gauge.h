@@ -52,7 +52,7 @@ class Gauge : public CutWnd {
   std::vector<Piece> Rates;
   std::shared_ptr<Experiment> Exp;
   // Modified parms
-  double _Lower = 0.0, _Upper = 0.0;
+  double m_Lower = 0.0, m_Upper = 0.0;
   double Zero_corr = 0.0;
   size_t start = 0, final = 0;
   // Calculated
@@ -72,9 +72,6 @@ class Gauge : public CutWnd {
   fRECT fr;
   RECT rcGrf;
   bool drawI = false;
-  //for rtdlg
-  bool displayed = false;
-  bool checked   = false;
 
   // Methods
   // Constructors & destructors
@@ -133,11 +130,11 @@ class Gauge : public CutWnd {
   auto FileName() { return Exp->DAT(); }
   char* WinTitle();
   void SetTitle() { SetWindowText(hWnd, WinTitle()); }
-  virtual char* PicName();
+  char* PicName() override;
 
   // Data access
-  double I2D(short int v) { return V0 + v * dV - Zero_corr; }
-  short int D2I(double v) { return (short int) ((v - V0 + Zero_corr) / dV); }
+  [[maybe_unused]] double I2D(short int v) const { return V0 + v * dV - Zero_corr; }
+  short int D2I(double v) const { return (short int) ((v - V0 + Zero_corr) / dV); }
 
   double P2T(size_t x);
   size_t T2P(double);
@@ -151,12 +148,12 @@ class Gauge : public CutWnd {
   double Start() { return P2T(start); }
   double Final() { return P2T(final); }
   double Upper() {
-    if (_Upper == _Lower) ULSetup();
-    return _Upper;
+    if (m_Upper == m_Lower) ULSetup();
+    return m_Upper;
   }
   double Lower() {
-    if (_Upper == _Lower) ULSetup();
-    return _Lower;
+    if (m_Upper == m_Lower) ULSetup();
+    return m_Lower;
   }
 };
 
@@ -165,6 +162,23 @@ std::shared_ptr<Gauge> GaugeByChNum(char*);
 
 inline auto
 GaugeIterator() { return WindowIterator<Gauge>();}
+
+[[maybe_unused]]
+inline std::shared_ptr<Gauge>
+FirstGauge() {
+  for (auto G : GaugeIterator()) {
+    return G;
+  }
+  return {};
+}
+
+inline std::shared_ptr<Experiment>
+FirstExp() {
+  for (auto G : GaugeIterator()) {
+    if (G->Exp) return G->Exp;
+  }
+  return {};
+}
 
 #include "gaug_inl.h"
 

@@ -3,10 +3,9 @@
 #include "dxw.h"
 #include "gauge.h"
 #include <commdlg.h>
-#include <cmath>
 #include <cstdlib>
 
-static bool PolyCache = 0;
+static bool PolyCache = false;
 
 inline double
 clip(double x, double min, double max) {
@@ -133,9 +132,9 @@ Gauge::Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcU) {
   } else {
     dr.upd.Set(Start(), Final());
   }
-  if (t == Screen) PolyCache = 1;
+  if (t == Screen) PolyCache = true;
   Plot(hdc, dr);
-  PolyCache = 0;
+  PolyCache = false;
   if (t == Screen) {
     //	HRGN hrgnWin=CreateRectRgnIndirect(&rc);
     //	SelectClipRgn(hdc,hrgnWin);
@@ -146,16 +145,6 @@ Gauge::Draw(HDC hdc, RECT& rc, DCtype t, RECT* rcU) {
     rcValid = frcValid = TRUE;
     DrawPointer(hdc);
     DrawCutRect(hdc);
-    /*	SelectObject(hdc,hbrGray);
-	Handle(hdc,dr.rcCut.left ,dr.rcCut.top);
-	Handle(hdc,dr.rcCut.right,dr.rcCut.top);
-	Handle(hdc,dr.rcCut.left ,dr.rcCut.bottom);
-	Handle(hdc,dr.rcCut.right,dr.rcCut.bottom);
-	Handle(hdc,(dr.rcCut.left+dr.rcCut.right)/2,dr.rcCut.top);
-	Handle(hdc,(dr.rcCut.left+dr.rcCut.right)/2,dr.rcCut.bottom);
-	Handle(hdc,dr.rcCut.right,(dr.rcCut.bottom+dr.rcCut.top)/2);
-	Handle(hdc,dr.rcCut.left ,(dr.rcCut.bottom+dr.rcCut.top)/2);
-*/
   }
   hpDef = hpSave;
   SelectObject(hdc, GetStockObject(BLACK_PEN));
@@ -280,7 +269,7 @@ Gauge::Plot(HDC hdc, DrOpt& dr) {
       PolyP = std::make_unique<Pline>();
       BeginWait();
       for (k = st; k < fi; k++) {
-        PolyP->FilterPoint(dr.T2scr(P2T(k)), dr.P2scr(clip(Val(k), _Lower, _Upper)));
+        PolyP->FilterPoint(dr.T2scr(P2T(k)), dr.P2scr(clip(Val(k), m_Lower, m_Upper)));
       }
       EndWait();
       PolyP->Finish();
