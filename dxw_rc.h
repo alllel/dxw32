@@ -140,6 +140,7 @@
 #define CM_RENUMBER 10040
 #define CM_FONT 10041
 #define CM_LINEWIDTH 10042
+#define CM_RECENT 10050
 #define CM_LAST 20000
 #define IDC_STATIC -1
 

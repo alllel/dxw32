@@ -21,8 +21,15 @@
     LPARAM lParam)
 
 extern char buf[MAX_PATH];
-extern char fname[MAX_PATH+4];
-extern std::vector<std::string> recent;
+extern char fname[MAX_PATH + 4];
+struct Recent {
+  std::vector<std::string> files;
+  bool changed = true;
+  void AddFile(std::string const&);
+  [[nodiscard]] std::string const& operator[](size_t i) const { return files[i]; }
+  [[nodiscard]] size_t size() const { return files.size(); }
+};
+extern Recent recent;
 extern HINSTANCE hInst;
 extern HWND hFrame, hMDI;
 extern HGLOBAL hDevMode, hDevNames;
@@ -93,6 +100,7 @@ void SaveDirs();
 int ChDir(char*);
 void cbs(char*);
 int OpenExp();
+int OpenExp(std::string_view);
 void SetTitle();
 void Digitize();
 void WriteTable();

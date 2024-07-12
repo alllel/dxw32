@@ -1,10 +1,11 @@
 #define STRICT
 #include <windows.h>
+#include <algorithm>
 #include "dxw.h"
 
 char buf[MAX_PATH];
 char fname[MAX_PATH + 4];
-std::vector<std::string> recent;
+Recent recent;
 char Directory[81];
 char ExpName[20];
 double TICKS     = 25;
@@ -26,11 +27,11 @@ GetDirs() {
   GetPrivateProfileString("Krenz", "Directory", ".", Directory, std::size(Directory), "dxw.ini");
   unsigned N   = GetPrivateProfileInt("Recent", "N", 0, "dxw.ini");
   char cidx[4] = { "C" };
-  for (int i = 0; i < N; ++i) {
+  for (int i = N-1; i >=0; --i) {
     itoa(i, cidx + 1, 10);
     GetPrivateProfileString("Recent", cidx, "", buf, std::size(buf), "dxw.ini");
     if (buf[0]) {
-      recent.emplace_back(buf);
+      recent.AddFile(buf);
     }
   }
 }
@@ -45,4 +46,16 @@ SaveDirs() {
     itoa(i, cidx + 1, 10);
     WritePrivateProfileString("Recent", cidx, recent[i].c_str(), "dxw.ini");
   }
+}
+
+void
+Recent::AddFile(const std::string& path) {
+  if (!files.empty() && files[0] == path) return;
+  changed = true;
+  files.insert(files.begin(), path);
+  auto it = std::find(std::next(files.begin(), 1), files.end(), path);
+  if (it != files.end()) {
+    files.erase(it);
+  }
+  if (files.size() > 9) files.resize(9);
 }

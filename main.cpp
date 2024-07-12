@@ -21,6 +21,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR cmdline, int cmdshow) {
       return -1;
   if (!Init(cmdshow))
     return -2;
+  if (cmdline && cmdline[0]) OpenExp(cmdline);
   int ret = MessageLoop();
 
   ShutDown();

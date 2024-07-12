@@ -5,6 +5,7 @@
 #include <commdlg.h>
 #include <cstdlib>
 #include <memory.h>
+#include <cstring>
 
 static int CloseAll();
 static int Command(WPARAM);
@@ -12,6 +13,8 @@ static void PrSetup();
 void Write(bool);
 int ReadAscii();
 int OpenDL();
+
+void UpdateRecentMenu(HMENU);
 
 WINPROC(MainWin) {
   HWND hChld;
@@ -21,6 +24,8 @@ WINPROC(MainWin) {
       if (LOWORD(lParam) == 2) {
         CheckMenuItem((HMENU) wParam, CM_DIGIT, MF_BYCOMMAND | (hDig ? MF_CHECKED : MF_UNCHECKED));
         CheckMenuItem((HMENU) wParam, CM_INFO, MF_BYCOMMAND | (hInfo ? MF_CHECKED : MF_UNCHECKED));
+      } else if (LOWORD(lParam) == 0) {
+        UpdateRecentMenu((HMENU) wParam);
       }
       break;
     case WM_CLOSE:
@@ -98,12 +103,6 @@ MinAll() {
   return 1;
 }
 
-static void
-Compress() {
-  sprintf(buf, "compress -r %s*.dat", Directory);
-  WinExec(buf, SW_NORMAL);
-}
-
 void RenumberChannels();
 
 int
@@ -124,11 +123,6 @@ Command(WPARAM cmd) {
       OpenExp();
       if (Experiment::nExp > 1) Changed = 1;
       break;
-//    case CM_OPENDL:
-//      //if(CloseAll() /* && DLG(ID_OPEN,OpenDlg)==1*/)
-//      OpenDL();
-//      if (Experiment::nExp > 1) Changed = 1;
-//      break;
     case CM_SAVE:
       Write(FALSE);
       break;
@@ -184,13 +178,17 @@ Command(WPARAM cmd) {
     case CM_R_T:
       if (Gauge::nGauges) DLG(ID_RTD, RTdlg);
       break;
-    case CM_COMPR:
-      Compress();
-      break;
     case CM_RENUMBER:
       RenumberChannels();
       break;
     default:
+      if (cmd >= CM_RECENT) {
+        auto iRecent = cmd - CM_RECENT;
+        if (iRecent < recent.size()) {
+          OpenExp(recent[iRecent]);
+          return 1;
+        }
+      }
       return 0;
   }
   return 1;
@@ -208,4 +206,30 @@ PrSetup() {
   PrintDlg(&PD);
   hDevMode  = PD.hDevMode;
   hDevNames = PD.hDevNames;
+}
+
+HMENU
+GetRecentMenu(HMENU hFile) {
+  MENUITEMINFO mi;
+  std::memset(&mi, 0, sizeof(mi));
+  mi.cbSize = sizeof(mi);
+  mi.fMask  = MIIM_SUBMENU | MIIM_FTYPE;
+  GetMenuItemInfo(hFile, 1, TRUE, &mi);
+  return mi.hSubMenu;
+};
+
+void
+UpdateRecentMenu(HMENU hFileMenu) {
+  static HMENU hRecent = GetRecentMenu(hFileMenu);
+  if (!recent.changed) return;
+  recent.changed = false;
+  if (recent.size() == 0) return;
+  while (GetMenuItemCount(hRecent)) {
+    DeleteMenu(hRecent, 0, MF_BYPOSITION);
+  }
+  UINT_PTR id = CM_RECENT;
+  for (auto const& exp : recent.files) {
+    AppendMenuA(hRecent, MF_STRING | MF_ENABLED, id, exp.c_str());
+    id++;
+  }
 }

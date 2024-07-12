@@ -390,7 +390,6 @@ BEGIN
         MENUITEM "Write &ASCII",                CM_WASCII
         MENUITEM "&Fourie",                     CM_FFT
         MENUITEM "&Restore",                    CM_RESTORE
-        MENUITEM "Compress",                    CM_COMPR
     END
     POPUP "&Tables"
     BEGIN

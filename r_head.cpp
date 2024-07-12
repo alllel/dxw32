@@ -18,7 +18,13 @@ OpenExp() {
   ofn.hwndOwner = hFrame;
   ofn.Flags     = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
   if (!GetOpenFileName(&ofn)) return 0;
-  auto E = Experiment::SetupExp(buf);
+  else
+    return OpenExp(buf);
+}
+
+int
+OpenExp(std::string_view exp_fname) {
+  auto E = Experiment::SetupExp(exp_fname);
   {
     for (auto G : GaugeIterator())
       if (*(G->Exp) == *E) {
@@ -35,8 +41,7 @@ OpenExp() {
     std::strncpy(Directory, dir.c_str(), std::size(Directory));
     auto name = E->IXC().filename().string();
     std::strncpy(ExpName, name.c_str(), std::size(ExpName));
-    recent.insert(recent.begin(), E->IXC().string());
-    if (recent.size() > 9) recent.resize(9);
+    recent.AddFile(E->IXC().string());
   }
 
   std::shared_ptr<Gauge> NG;
@@ -84,6 +89,10 @@ OpenExp() {
     NG->Create();
   } while (!fp.eof());
   if (!Gauge::nGauges) MessageBox(hFrame, "No channels available", ExpName, MB_OK | MB_ICONINFORMATION);
+  else {
+    PostMessage(hFrame, WM_COMMAND, CM_REST_ALL, 0);
+    PostMessage(hFrame, WM_COMMAND, CM_TILE, 0);
+  }
   SetTitle();
   return 0;
 }
