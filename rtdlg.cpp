@@ -193,6 +193,7 @@ RtDlgState::CheckLine(int l_idx, bool chn_state) {
     }
   }
   SendItemMessage(IDC_RT_LINES, LB_SETSEL, 1, l_idx);
+  lines[l_idx].second = true;
 }
 
 void
@@ -206,6 +207,7 @@ RtDlgState::UncheckLine(int l_idx) {
     }
   }
   SendItemMessage(IDC_RT_LINES, LB_SETSEL, 0, l_idx);
+  lines[l_idx].second = false;
 }
 
 inline void
@@ -254,6 +256,7 @@ RtDlgState::GetItemUnit(int ID, double& val, std::span<Unit> U) const {
   val = w * it->factor;
   return true;
 }
+
 WINBOOL
 RtDlgState::Command(WORD idCtl, WORD wNotCode, void (*end_dialog)(bool)) {
   switch (idCtl) {
@@ -356,6 +359,7 @@ RT::ReadDlg(RtDlgState& dlg) {
   N = (int) dlg.SendItemMessage(IDC_RT_CHNS, LB_GETSELCOUNT, 0, 0);
   if (!N) return FALSE;
   N = (int) dlg.SendItemMessage(IDC_RT_CHNS, LB_GETCOUNT, 0, 0);
+  Chns.clear();
   for (i = 0; i < N; ++i) {
     if (dlg.SendItemMessage(IDC_RT_CHNS, LB_GETSEL, i, 0) <= 0) continue;
     auto G = GaugeByWnd(dlg.Chns[i]);
@@ -383,7 +387,8 @@ RT::ReadDlg(RtDlgState& dlg) {
   dlg.GetItem(IDC_RT_ANGL, R_angle);
   R_left = dlg.IsChecked(IDC_RT_RL);
   clr    = dlg.IsChecked(IDC_RT_CLR);
-  if (dlg.IsChecked(IDC_RT_PL)) P_st = Left;
+  if (dlg.IsChecked(IDC_RT_PL))
+    P_st = Left;
   else if (dlg.IsChecked(IDC_RT_PR))
     P_st = Right;
   else
