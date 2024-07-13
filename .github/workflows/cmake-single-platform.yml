@@ -11,7 +11,8 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  CXX: /usr/bin/i686-w64-mingw32-g++-win32
+  MINGW: /usr/bin/i686-w64-mingw32
+  CXX: ${{env.MINGW}}-g++-win32
 
 jobs:
   build:
@@ -34,6 +35,8 @@ jobs:
     - name: Build
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    - name: Strip Exe
+      run: ${{env.MINGW}}-strip ${{github.workspace}}/build/dxw32.exe
 
     - name:  Store Result
       uses: actions/upload-artifact@v4
