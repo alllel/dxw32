@@ -14,9 +14,11 @@ target_link_options(dxw32 PUBLIC -mwindows)
 
 if (NOT MSVC)
     target_sources(dxw32 PRIVATE dxw.o)
+    STRING(REPLACE "-g++-win32" "" MINGW_BASE ${CMAKE_CXX_COMPILER})
+    set(WINDRES "${MINGW_BASE}-windres")
     add_custom_command(
         OUTPUT dxw.o
-        COMMAND i686-w64-mingw32-windres ${CMAKE_CURRENT_SOURCE_DIR}/dxw.rc dxw.o
+        COMMAND ${WINDRES} ${CMAKE_CURRENT_SOURCE_DIR}/dxw.rc dxw.o
         DEPENDS dxw.rc
     )
 endif ()
