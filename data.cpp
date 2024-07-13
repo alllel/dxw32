@@ -1,6 +1,7 @@
 #define STRICT
 #include <windows.h>
 #include "dxw.h"
+#include <algorithm>
 
 char buf[MAX_PATH];
 char fname[MAX_PATH + 4];
