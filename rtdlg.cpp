@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iomanip>
 #include <span>
+#include <cassert>
 
 //RT* Rt = nullptr;
 struct Unit {
@@ -446,13 +447,20 @@ RT::InitDlg(RtDlgState& dlg) {
 DLG_PROC(RTdlg) {
   static std::shared_ptr<RtDlgState> dlg {};
   auto end_dialog = [](bool Ok) {
+    assert(dlg);
+    assert(dlg->Rt);
     if (Ok) {
       dlg->Rt->Create();
+      assert(dlg->Rt->hWnd);
       InvalidateRect(dlg->Rt->hWnd, nullptr, TRUE);
     }
     EndDialog(dlg->hDlg, static_cast<INT_PTR>(Ok));
     dlg.reset();
   };
+  if (dlg) {
+    assert(hDlg == dlg->hDlg);
+    assert(dlg->Rt);
+  }
   switch (msg) {
     case WM_INITDIALOG: {
       dlg = std::make_shared<RtDlgState>(hDlg, reinterpret_cast<HWND>(lParam));
