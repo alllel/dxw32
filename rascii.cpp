@@ -10,7 +10,7 @@
 #include <span>
 #include <fstream>
 
-DLGPROC(ImpDlg);
+DLG_PROC(ImpDlg);
 bool R_Ascii(std::string ascii_file);
 
 int
@@ -156,7 +156,7 @@ R_Ascii(std::string ascii_file) {
   return true;
 }
 
-DLGPROC(ImpDlg) {
+DLG_PROC(ImpDlg) {
   static Gauge* G;
   switch (msg) {
     case WM_INITDIALOG:

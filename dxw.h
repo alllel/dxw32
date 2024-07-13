@@ -8,13 +8,13 @@
 #include <vector>
 #include <string>
 
-#define WINPROC(name) LRESULT CALLBACK name( \
+#define WIN_PROC(name) LRESULT CALLBACK name( \
     HWND hWnd,                               \
     UINT msg,                                \
     WPARAM wParam,                           \
     LPARAM lParam)
 
-#define DLGPROC(name) BOOL CALLBACK name( \
+#define DLG_PROC(name) INT_PTR CALLBACK name( \
     HWND hDlg,                            \
     UINT msg,                             \
     WPARAM wParam,                        \
@@ -50,17 +50,15 @@ extern HWND hInfo;
 extern HBRUSH hbrNull, hbrGray;
 extern HPEN hpPnt, hpPts, hpCut, hpImp, hpDef;
 
-WINPROC(MainWin);
-WINPROC(ChannellWin);
-WINPROC(ChildWinProc);
-WINPROC(RTwin);
-DLGPROC(DigDlg);
-DLGPROC(AboutDlg);
-DLGPROC(StepDlg);
-DLGPROC(RTdlg);
-DLGPROC(UnitProc);
+WIN_PROC(MainWin);
+WIN_PROC(ChildWinProc);
+DLG_PROC(DigDlg);
+DLG_PROC(AboutDlg);
+DLG_PROC(StepDlg);
+DLG_PROC(RTdlg);
+DLG_PROC(UnitProc);
 
-int DLG(int ID, DLGPROC(Proc), LPARAM lp = 0);
+int DLG(int ID, DLG_PROC(Proc), LPARAM lp = 0);
 
 void GetDlgItemDouble(HWND hDlg, int ctrl, double& val);
 void SetDlgItemDouble(HWND hDlg, int ctrl, double val);

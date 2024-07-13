@@ -5,7 +5,7 @@
 #include "spectrum.h"
 #include <cmath>
 
-void transform(double* val, double* freq_re, double* freq_im, int len);
+void transform(double const* val, double* freq_re, double* freq_im, int len);
 
 spectrum::spectrum(Gauge* g) : G { g } {
   long i, j, n;

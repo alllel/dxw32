@@ -73,8 +73,8 @@ Gauge::WinProc(Msg& M) {
   }
 }
 
-DLGPROC(UnitProc);
-DLGPROC(TShiftProc);
+DLG_PROC(UnitProc);
+DLG_PROC(TShiftProc);
 
 bool
 Gauge::Command(WPARAM cmd) {

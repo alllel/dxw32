@@ -38,7 +38,7 @@ Modified(int nItem) {
 }
 
 //ARGSUSED
-DLGPROC(DigDlg) {
+DLG_PROC(DigDlg) {
   bool ret = false;
   long i, n;
   double v, V;

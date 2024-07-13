@@ -443,7 +443,7 @@ RT::InitDlg(RtDlgState& dlg) {
   }
 }
 
-DLGPROC(RTdlg) {
+DLG_PROC(RTdlg) {
   static std::shared_ptr<RtDlgState> dlg {};
   auto end_dialog = [](bool Ok) {
     if (Ok) {

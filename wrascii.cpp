@@ -50,7 +50,7 @@ Gauge::WriteASCII() {
 }
 
 //ARGSUSED
-DLGPROC(StepDlg) {
+DLG_PROC(StepDlg) {
   switch (msg) {
     case WM_INITDIALOG: {
       SendDlgItemMessage(hDlg, IDC_ST_STEP, CB_ADDSTRING, 0, (LPARAM) (LPCSTR) "1");

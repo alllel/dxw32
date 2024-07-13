@@ -3,7 +3,7 @@
 #include "dxw.h"
 #include "ver.h"
 
-DLGPROC(AboutDlg) {
+DLG_PROC(AboutDlg) {
   switch (msg) {
     case WM_INITDIALOG:
       SetDlgItemText(hDlg, IDC_DATE, __DATE__);

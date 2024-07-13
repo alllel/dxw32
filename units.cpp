@@ -18,7 +18,7 @@ FindString(HWND hDlg, char* str) {
 }
 
 //ARGSUSED
-DLGPROC(UnitProc) {
+DLG_PROC(UnitProc) {
   //static Gauge*G=nullptr;
   WPARAM Index;
   switch (msg) {
@@ -89,7 +89,7 @@ DLGPROC(UnitProc) {
 }
 
 //ARGSUSED
-DLGPROC(TShiftProc) {
+DLG_PROC(TShiftProc) {
   WPARAM Index;
   switch (msg) {
     case WM_INITDIALOG:

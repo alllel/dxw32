@@ -35,9 +35,9 @@ Window::Destroy() {
   }
 }
 
-DLGPROC(WSProc);
+DLG_PROC(WSProc);
 
-WINPROC(ChildWinProc) {
+WIN_PROC(ChildWinProc) {
   auto W = Window::GetWindow(hWnd);
   if (!W) return DefMDIChildProc(hWnd, msg, wParam, lParam);
   Msg M(msg, wParam, lParam);
@@ -78,7 +78,7 @@ bool
 Window::Command(WPARAM cmd) {
   switch (cmd) {
     case CM_WSIZE:
-      DialogBoxParam(hInst, MAKEINTRESOURCE(ID_WSIZE), hFrame, (DLGPROC) WSProc, (LPARAM) hWnd);
+      DialogBoxParam(hInst, MAKEINTRESOURCE(ID_WSIZE), hFrame, WSProc, (LPARAM) hWnd);
       return TRUE;
     case CM_REST:
       if (!IsIconic(hWnd)) break;
@@ -143,7 +143,7 @@ Window::SelFont() {
 
 static int DlgLW;
 
-DLGPROC(LWDlgProc) {
+DLG_PROC(LWDlgProc) {
   switch (msg) {
     case WM_INITDIALOG:
       SetDlgItemText(hDlg, IDC_LW, gcvt(DlgLW * 0.1, 3, buf));
@@ -341,7 +341,7 @@ Window::ToFile() {
   }
 }
 
-DLGPROC(WSProc) {
+DLG_PROC(WSProc) {
   unsigned w, h;
   BOOL err;
   RECT rc;

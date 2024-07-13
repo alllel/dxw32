@@ -16,7 +16,7 @@ int OpenDL();
 
 void UpdateRecentMenu(HMENU);
 
-WINPROC(MainWin) {
+WIN_PROC(MainWin) {
   HWND hChld;
   WORD cmd;
   switch (msg) {

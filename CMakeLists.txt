@@ -4,10 +4,11 @@ project(dxw32)
 set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB DXW_SOURCES "*.cpp")
-add_executable(dxw32 ${DXW_SOURCES} dxw.o
-        dxw.rc)
+add_executable(dxw32 ${DXW_SOURCES} dxw.o)
+target_sources(dxw32 PRIVATE dxw.rc)
+
 target_link_options(dxw32 PUBLIC -mwindows -static-libgcc -static-libstdc++)
-target_link_libraries(dxw32 -lwinmm -lgdi32 -llz32 -lcomdlg32)
+#target_link_libraries(dxw32 -lwinmm -lgdi32 -lcomdlg32)
 
 add_custom_command(
         OUTPUT dxw.o

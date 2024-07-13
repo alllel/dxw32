@@ -6,7 +6,7 @@
 #include <cstring>
 
 //ARGSUSED
-DLGPROC(InfoProc) {
+DLG_PROC(InfoProc) {
   char* p;
   HWND hChan;
   switch (msg) {

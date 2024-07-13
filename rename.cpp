@@ -6,7 +6,7 @@
 #include <cstring>
 #include <ctype.h>
 
-DLGPROC(RenameDlg) {
+DLG_PROC(RenameDlg) {
   BOOL Trn;
   int shift;
   switch (msg) {

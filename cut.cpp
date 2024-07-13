@@ -14,7 +14,7 @@ static HWND hCutDlg = nullptr;
 //Not necessary because smart callbacks used
 //static FARPROC prDlg;
 
-DLGPROC(CutSize);
+DLG_PROC(CutSize);
 
 void
 CutWnd::SetCursor(POINTS& pt) {
@@ -129,7 +129,7 @@ CancelCut() {
 }
 
 //ARGSUSED
-DLGPROC(CutSize) {
+DLG_PROC(CutSize) {
   switch (msg) {
     case WM_INITDIALOG:
       hCutDlg = hDlg;
