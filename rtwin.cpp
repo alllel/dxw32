@@ -75,7 +75,7 @@ RT::FindChannell(WORD y) {
   if (IsIconic(rez)) {
     ShowWindow(rez, SW_RESTORE);
   } else {
-    SendMessage(hMDI, WM_MDIACTIVATE, (WPARAM) hWnd, 0);
+    SendMessage(hMDI, WM_MDIACTIVATE, (WPARAM) rez, 0);
   }
 }
 
