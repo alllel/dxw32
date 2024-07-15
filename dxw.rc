@@ -367,6 +367,7 @@ BEGIN
         MENUITEM "Renumber Channels...",        CM_RENUMBER
         MENUITEM SEPARATOR
         MENUITEM "Printer &setup...",           CM_PR_SETUP
+        MENUITEM "Register File Extension",     CM_FILEEXT
         MENUITEM SEPARATOR
         MENUITEM "E&xit\tAlt+X",                CM_EXIT
     END
@@ -425,7 +426,7 @@ END
 
 ID_MENU ACCELERATORS DISCARDABLE 
 BEGIN
-    "D",            CM_OPENDL,              VIRTKEY, CONTROL
+    "D",            CM_DIGIT,              VIRTKEY, CONTROL
     VK_RETURN,      CM_REST,                VIRTKEY 
     "E",            CM_CL_ALL,              VIRTKEY, CONTROL
     "M",            CM_MIN_ALL,             VIRTKEY, CONTROL

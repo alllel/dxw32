@@ -10,6 +10,7 @@
 #include <commdlg.h>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 
 int
 OpenExp() {
@@ -28,13 +29,17 @@ OpenExp(std::string_view exp_fname) {
   {
     for (auto G : GaugeIterator())
       if (*(G->Exp) == *E) {
-        MessageBox(hFrame, "Experiment is already open!", nullptr, MB_OK | MB_ICONEXCLAMATION);
+        MessageBoxW(hFrame, G->Exp->path.c_str(), L"Already open", MB_OK | MB_ICONEXCLAMATION);
         return 0;
       }
   }
+  if (!exists(E->path)) {
+    MessageBoxW(hFrame, E->path.c_str(), L"File not exists", MB_OK | MB_ICONSTOP);
+    return 0;
+  }
   auto fp = std::fstream { E->IXC(), std::ios::in };
-  if (!fp) {
-    MessageBox(hFrame, "Can't open file", buf, MB_OK | MB_ICONSTOP);
+  if (!fp.is_open()) {
+    MessageBoxA(hFrame, std::strerror(errno), "Can't open file", MB_OK | MB_ICONSTOP);
     return 0;
   } else {
     auto dir = E->IXC().parent_path().string();

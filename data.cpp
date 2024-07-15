@@ -2,13 +2,14 @@
 #include <windows.h>
 #include "dxw.h"
 #include <algorithm>
+#include "RegKey.hpp"
 
 char buf[MAX_PATH];
 char fname[MAX_PATH + 4];
 Recent recent;
 char Directory[81];
 char ExpName[20];
-int Changed      = 0;
+int Changed = 0;
 
 //Digitize window
 HWND hDig  = nullptr;
@@ -20,27 +21,32 @@ HPEN hpPnt = nullptr, hpPts = nullptr, hpImp = nullptr, hpDef = nullptr;
 
 void
 GetDirs() {
-  GetPrivateProfileString("Krenz", "Directory", ".", Directory, std::size(Directory), "dxw.ini");
-  int N   = GetPrivateProfileInt("Recent", "N", 0, "dxw.ini");
+  RegKey settings { R"(Software\KIT\Dxw32)" };
+  if (!settings) return;
+  auto dir = settings.GetString(nullptr);
+  if (!dir.empty()) std::strncpy(Directory, dir.data(), std::size(Directory));
+  auto N       = settings.GetDword("Nlast");
   char cidx[4] = { "C" };
-  for (int i = N-1; i >=0; --i) {
+  for (int i = N - 1; i >= 0; --i) {
     itoa(i, cidx + 1, 10);
-    GetPrivateProfileString("Recent", cidx, "", buf, std::size(buf), "dxw.ini");
-    if (buf[0]) {
-      recent.AddFile(buf);
+    auto recent_name = settings.GetString(cidx);
+    if (!recent_name.empty()) {
+      recent.AddFile(recent_name);
     }
   }
 }
 
 void
 SaveDirs() {
-  WritePrivateProfileString("Krenz", "Directory", Directory, "dxw.ini");
-  int N = static_cast<int>(recent.size());
-  WritePrivateProfileString("Recent", "N", itoa(N, buf, 10), "dxw.ini");
+  RegKey settings { R"(Software\KIT\Dxw32)" };
+  if (!settings) return;
+  settings.SetDefStr(Directory);
+  auto N = static_cast<DWORD>(recent.size());
+  settings.SetDword("Nlast", N);
   char cidx[4] = { "C" };
   for (int i = 0; i < N; ++i) {
     itoa(i, cidx + 1, 10);
-    WritePrivateProfileString("Recent", cidx, recent[i].c_str(), "dxw.ini");
+    settings.SetStr(cidx, recent[i].c_str());
   }
 }
 

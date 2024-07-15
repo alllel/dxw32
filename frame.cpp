@@ -3,9 +3,8 @@
 #include "dxw.h"
 #include "gauge.h"
 #include <commdlg.h>
-#include <cstdlib>
 #include <memory.h>
-#include <cstring>
+#include "RegKey.hpp"
 
 static int CloseAll();
 static int Command(WPARAM);
@@ -104,13 +103,14 @@ MinAll() {
 }
 
 void RenumberChannels();
+bool RegisterFileExt();
 
 int
 Command(WPARAM cmd) {
   switch (cmd) {
     case CM_EXPINFO:
       if (Experiment::nExp == 1) {
-        if(auto E = FirstExp()){
+        if (auto E = FirstExp()) {
           sprintf(buf, "notepad.exe %s", E->File("DSC").string().c_str());
           WinExec(buf, SW_RESTORE);
         }
@@ -123,6 +123,11 @@ Command(WPARAM cmd) {
       //if(CloseAll() /* && DLG(ID_OPEN,OpenDlg)==1*/)
       OpenExp();
       if (Experiment::nExp > 1) Changed = 1;
+      break;
+    case CM_FILEEXT:
+      if (!RegisterFileExt()) {
+        MessageBoxA(hFrame, "There was some error writing to registry", "Register file type", MB_OK | MB_ICONEXCLAMATION);
+      }
       break;
     case CM_SAVE:
       Write(FALSE);
@@ -233,4 +238,32 @@ UpdateRecentMenu(HMENU hFileMenu) {
     AppendMenuA(hRecent, MF_STRING | MF_ENABLED, id, exp.c_str());
     id++;
   }
+}
+
+bool
+RegisterFileExt() {
+  GetModuleFileName(nullptr, buf, MAX_PATH);
+  auto fn_len = std::strlen(buf);
+  {
+    RegKey key { R"(Software\Classes\.ixc)" };
+    if (!key) return false;
+    if (!key.SetDefStr("dxw32_file")) return false;
+  }
+  {
+    RegKey key { R"(Software\Classes\dxw32_file)" };
+    if (!key) return false;
+    if (!key.SetDefStr("Dxw32 file")) return false;
+  }
+  {
+    RegKey icon { R"(Software\Classes\dxw32_file\DefaultIcon)" };
+    if (!icon) return false;
+    icon.SetDefStr(buf);
+  }
+  {
+    RegKey open { R"(Software\Classes\dxw32_file\shell\open\command)" };
+    if (!open) return false;
+    std::strcpy(buf + fn_len, " %1");
+    if (!open.SetDefStr(buf)) return false;
+  }
+  return true;
 }

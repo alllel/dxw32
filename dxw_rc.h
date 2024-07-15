@@ -101,7 +101,7 @@
 #define CM_FIRST 10000
 #define CM_OPEN 10001
 #define IDC_SAVE_RT 10001
-#define CM_OPENDL 10002
+#define CM_FILEEXT 10002
 #define CM_PR_SETUP 10003
 #define CM_REST 10004
 #define CM_EXIT 10006
