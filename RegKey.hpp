@@ -13,15 +13,13 @@ struct RegKey {
   ~RegKey() {
     if (key) RegCloseKey(key);
   }
-  operator bool() const { return key != nullptr; }
+  explicit operator bool() const { return key != nullptr; }
   explicit RegKey(char const* path) {
-    //key        = reinterpret_cast<HKEY>(1);
     last_error = RegOpenKeyExA(HKEY_CURRENT_USER, path, 0, KEY_ALL_ACCESS, &key);
     if (last_error == ERROR_SUCCESS) return;
     last_error = RegCreateKeyExA(HKEY_CURRENT_USER, path, 0, nullptr, 0, KEY_ALL_ACCESS, nullptr, &key, nullptr);
   }
-  RegKey(RegKey const& parent, char const* path) {
-    //key        = reinterpret_cast<HKEY>(1);
+  [[maybe_unused]] RegKey(RegKey const& parent, char const* path) {
     last_error = RegCreateKeyExA(parent.key, path, 0, nullptr, 0, 0, nullptr, &key, nullptr);
   }
   bool SetDefStr(const char* val) {
