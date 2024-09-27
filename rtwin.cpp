@@ -162,6 +162,7 @@ RT::Draw(HDC hdc, RECT& rc, DCtype dct, RECT* rcUpd) {
     dr.rcG.bottom = Ph;
     dr.rcG.top    = 0;
     dr.P.SetRng(G->Lower(), G->Upper());
+    dr.P.Adjust(0.0);
     h = rc.bottom - (int) (w * Rh) - bf;
     sprintf(buf, "%g", G->radius);
     if (R_left) {

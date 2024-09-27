@@ -8,6 +8,9 @@ class Range {
   void Set(double min, double max) {
     (*this) = Range { min, max };
   }
+  void Adjust(double v) {
+    Set(std::min(Min(), v), std::max(Max(), v));
+  }
   Range() { m_min = m_len = 0; }
   [[nodiscard]] double Min() const { return m_min; }
   [[nodiscard]] double Max() const { return m_min + m_len; }
