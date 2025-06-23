@@ -25,7 +25,7 @@ extern char fname[MAX_PATH + 4];
 struct Recent {
   std::vector<std::string> files;
   bool changed = true;
-  void AddFile(std::string const&);
+  void AddFile(std::string const&, bool nosave=false);
   [[nodiscard]] std::string const& operator[](size_t i) const { return files[i]; }
   [[nodiscard]] size_t size() const { return files.size(); }
 };

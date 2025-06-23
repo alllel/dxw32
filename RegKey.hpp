@@ -37,7 +37,7 @@ struct RegKey {
   }
   std::string GetString(char const* name) {
     DWORD vtype;
-    DWORD len;
+    DWORD len=sizeof(buf);
     last_error = RegGetValueA(key, nullptr, name, RRF_RT_REG_SZ, &vtype, buf, &len);
     if (last_error == ERROR_SUCCESS) {
       return std::string { buf, len };
@@ -47,8 +47,8 @@ struct RegKey {
   }
   DWORD GetDword(char const* name) {
     DWORD vtype;
-    DWORD len;
     DWORD value;
+    DWORD len=sizeof(value);
     last_error = RegGetValueA(key, nullptr, name, RRF_RT_REG_DWORD, &vtype, &value, &len);
     if (last_error == ERROR_SUCCESS) {
       return value;

@@ -2,6 +2,8 @@
 #include <windows.h>
 #include "dxw.h"
 #include <algorithm>
+#include <iostream>
+
 #include "RegKey.hpp"
 
 char buf[MAX_PATH];
@@ -31,7 +33,7 @@ GetDirs() {
     itoa(i, cidx + 1, 10);
     auto recent_name = settings.GetString(cidx);
     if (!recent_name.empty()) {
-      recent.AddFile(recent_name);
+      recent.AddFile(recent_name, true);
     }
   }
 }
@@ -51,7 +53,7 @@ SaveDirs() {
 }
 
 void
-Recent::AddFile(const std::string& path) {
+Recent::AddFile(const std::string& path, bool nosave) {
   if (!files.empty() && files[0] == path) return;
   changed = true;
   files.insert(files.begin(), path);
@@ -60,4 +62,6 @@ Recent::AddFile(const std::string& path) {
     files.erase(it);
   }
   if (files.size() > 9) files.resize(9);
+  if (!nosave)
+    SaveDirs();
 }
