@@ -16,12 +16,11 @@ Write(bool SaveAs) {
   } else {
     FileData ofn;
     ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
-    buf[0]    = 0;
+    buf[0] = 0;
     if (!GetSaveFileName(&ofn)) return;
     E = Experiment::SetupExp(buf);
   }
-  if (!E) return;
-  {
+  if (!E) return; {
     auto ixc = std::fstream(E->File("_IX"), std::ios::out);
     auto dat = std::fstream(E->File("_DT"), std::ios::out | std::ios::binary);
     if (ixc.bad() || dat.bad()) {
@@ -29,30 +28,35 @@ Write(bool SaveAs) {
       return;
     }
     BeginWait();
-    for (auto G : GaugeIterator()) {
+    for (auto G: GaugeIterator()) {
       if (G->Write(dat, ixc)) break;
     }
     EndWait();
   }
   size_t Pos = 0;
-  for (auto G : GaugeIterator()) {
+  for (auto G: GaugeIterator()) {
     G->AfterWrite(E, Pos);
   }
   auto bak = E->File(".bak");
-  std::filesystem::remove(bak);
-  std::filesystem::rename(E->path, bak);
+  if (exists(bak))
+    std::filesystem::remove(bak);
+  if (exists(E->path))
+    std::filesystem::rename(E->path, bak);
   rename(E->File("._ix"), E->path);
   auto dbk = E->File(".dbk");
-  std::filesystem::remove(bak);
   auto dat = E->File(".dat");
-  std::filesystem::rename(dat, bak);
+  if (exists(dbk))
+    std::filesystem::remove(dbk);
+  if (exists(dat))
+    std::filesystem::rename(dat, dbk);
   std::filesystem::rename(E->File("._dt"), dat);
   Changed = 0;
   SetTitle();
+  recent.AddFile(E->IXC().string());
 }
 
 int
-Gauge::Write(std::fstream& hDAT, std::fstream& hIXC) {
+Gauge::Write(std::fstream &hDAT, std::fstream &hIXC) {
   snprintf(ID, std::size(ID), "G%d%c L%d R%.3f", number, g_type, angle, radius);
   auto len = snprintf(buf, sizeof(buf), "0:%s\\%16.16s\\%g\\%g\\%3.3s\\Time %hd.%hd.%hd \\Date %hd:%hd:%hd\\\n",
                       ChNum,
@@ -60,12 +64,12 @@ Gauge::Write(std::fstream& hDAT, std::fstream& hIXC) {
                       dV,
                       V0 - Zero_corr,
                       unit,
-          time.hour, time.min, time.sec,
-          date.day, date.month, date.year);
+                      time.hour, time.min, time.sec,
+                      date.day, date.month, date.year);
   hIXC.write(buf, len);
   unsigned long nst = 0;
-  for (auto const& P : Rates) {
-    auto np     = P.Np;
+  for (auto const &P: Rates) {
+    auto np = P.Np;
     auto Tstart = P.Tstart;
     if (nst + P.Np >= start) {
       if (nst > final) break;
@@ -83,7 +87,7 @@ Gauge::Write(std::fstream& hDAT, std::fstream& hIXC) {
   }
   LockD();
   auto ldat = (final - start) * sizeof(short);
-  hDAT.write(reinterpret_cast<char*>(val.data() + start), ldat);
+  hDAT.write(reinterpret_cast<char *>(val.data() + start), ldat);
   if (hDAT.bad()) {
     MessageBox(hFrame, "Can't write file! ", "Error writing .dat", MB_OK);
     return 1;
@@ -92,14 +96,14 @@ Gauge::Write(std::fstream& hDAT, std::fstream& hIXC) {
 }
 
 void
-Gauge::AfterWrite(std::shared_ptr<Experiment> E, size_t& Pos) {
+Gauge::AfterWrite(std::shared_ptr<Experiment> E, size_t &Pos) {
   V0 -= Zero_corr;
   Zero_corr = 0;
-  size_t nst=0, j=0;
+  size_t nst = 0, j = 0;
   std::vector<Piece> newRates;
-  for (auto& P : Rates) {
-    auto nP=P;
-    if (nst + P.Np >= start){
+  for (auto &P: Rates) {
+    auto nP = P;
+    if (nst + P.Np >= start) {
       if (nst > final) break;
       if ((nst + P.Np > start) && (nst < start)) {
         nP.Np -= (start - nst);
@@ -113,7 +117,7 @@ Gauge::AfterWrite(std::shared_ptr<Experiment> E, size_t& Pos) {
     nst += P.Np;
   }
 
-  Rates   = newRates;
+  Rates = newRates;
   FilePos = Pos;
   Pos += (final - start) * sizeof(int);
   if (count != final - start) {
